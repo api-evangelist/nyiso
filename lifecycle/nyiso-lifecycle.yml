@@ -1,0 +1,90 @@
+generated: '2026-07-27'
+method: searched
+source: >-
+  NYISO Finance APIs User's Guide v1.2 DRAFT, NYISO Metering API User Guide, the
+  SDX Upload/Download Application Retirement notice, and anonymous probes of
+  NYISO hosts on 2026-07-27
+summary: >-
+  NYISO versions its REST APIs in the URI path at v1 and has run one real
+  retirement - the SDX Upload/Download application, replaced by the Finance APIs
+  and switched off after 2025-09-17 following a market trial. It publishes no
+  general API deprecation policy, no Sunset/Deprecation header support, no
+  service level agreement for the APIs, and no status page. Grid conditions are
+  published in real time on a public dashboard, but that is operations
+  transparency, not API availability.
+
+versioning:
+  scheme: uri-path
+  current: v1
+  example: https://api.nyiso.com/finance/metering/v1/powerMetering
+  docs: https://www.nyiso.com/manuals-tech-bulletins-user-guides
+  policy_published: false
+  note: >-
+    Only v1 has ever been published. A separate payload-level "version" field
+    identifies the invoice version of settlement data (0 = latest) and is not an
+    API version.
+
+deprecation:
+  policy_url: null
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  retirements:
+  - subject: SDX Upload/Download application
+    replaced_by: NYISO Finance APIs (Metering, Settlements, Invoicing)
+    sunset_date: '2025-09-17'
+    announcement: https://www.nyiso.com/documents/20142/20259596/SDX-Upload-Download-Application-Retirement.pdf/93ebf171-b383-520d-b3af-00cb9f433d3c
+    evidence: >-
+      "Once testing is successful, market participants are encouraged to
+      transition to the Finance APIs exclusively, in production, as SDX will no
+      longer be available after 9/17/2025." The notice pairs the retirement with a
+      market trial in a sandbox environment and a named contact channel.
+    method: dated written notice with a market trial and a replacement API
+  note: >-
+    This is a real, dated retirement communication for a real interface, not a
+    standing deprecation policy. NYISO does not publish a general deprecation
+    window, a Sunset header contract (RFC 8594) or a version support matrix.
+
+sla:
+  url: null
+  uptime_target: null
+  note: >-
+    No API service level agreement is published. NYISO's reliability obligations
+    are tariff and FERC/NERC obligations on grid operation, not availability
+    commitments on api.nyiso.com or mis.nyiso.com.
+
+status_page: null
+status_page_note: >-
+  status.nyiso.com does not resolve and no /system-status page exists. The public
+  Real-Time Dashboard at https://www.nyiso.com/real-time-dashboard reports grid
+  conditions, not API or archive availability. Operational conditions affecting
+  markets are communicated through Operational Announcements (MIS report P-25)
+  and Dispatcher Notices rather than a developer status page.
+
+change_communication:
+  channels:
+  - name: Manuals, Tech Bulletins and User Guides
+    url: https://www.nyiso.com/manuals-tech-bulletins-user-guides
+    note: Where the versioned API PDF guides are filed; the effective source of API change notice.
+  - name: NYISO Operational Announcements (MIS report P-25)
+    url: http://mis.nyiso.com/public/P-25list.htm
+  - name: Stakeholder Services
+    contact: Stakeholder_Services@nyiso.com / +1 518-356-6060
+  dated_changelog_published: false
+  note: >-
+    The Finance APIs guide carries a Revision History table, but in the published
+    v1.2 DRAFT the only row is "1.0 / MM/DD/YYYY / Initial Release" - the dates
+    are unfilled template placeholders. There is no dated API changelog to
+    capture, so no changelog/ artifact was written.
+
+data_retention:
+  rest_apis: >-
+    Metering, settlements and invoicing data is retrievable for a rolling three
+    year and ten month window ending with the current month.
+  mis_public_archive: >-
+    Daily files plus monthly ZIP bundles; several report families list files back
+    to the early 2000s.
+  oasis_postings: >-
+    ATC/TTC posting keys observed dated from 1999-11-18 onward.
+
+deprecated_operations: []

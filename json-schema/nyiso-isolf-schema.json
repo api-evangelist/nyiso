@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/nyiso/refs/heads/main/json-schema/nyiso-isolf-schema.json",
+  "title": "NYISO ISO Load Forecast record",
+  "description": "NYISO load forecast by zone and for the NYISO total. One object per row of NYISO MIS public archive CSV report P-7 (http://mis.nyiso.com/public/csv/isolf/<YYYYMMDD>isolf.csv). DERIVED by API Evangelist from the header row and observed values of a live file fetched on 2026-07-27; NYISO publishes no schema document for this report. Timestamps are rendered by NYISO as MM/DD/YYYY HH:MM[:SS] in Eastern time, not ISO-8601.",
+  "x-nyiso-report": "P-7",
+  "x-source-url": "http://mis.nyiso.com/public/csv/isolf/20260726isolf.csv",
+  "x-generated": "2026-07-27",
+  "x-method": "derived",
+  "type": "object",
+  "properties": {
+    "time_stamp": {
+      "type": "string",
+      "title": "Time Stamp",
+      "description": "CSV column \"Time Stamp\"; observed example value: 07/26/2026 00:00"
+    },
+    "capitl": {
+      "type": "integer",
+      "title": "Capitl",
+      "description": "CSV column \"Capitl\"; observed example value: 1303"
+    },
+    "centrl": {
+      "type": "integer",
+      "title": "Centrl",
+      "description": "CSV column \"Centrl\"; observed example value: 1546"
+    },
+    "dunwod": {
+      "type": "integer",
+      "title": "Dunwod",
+      "description": "CSV column \"Dunwod\"; observed example value: 609"
+    },
+    "genese": {
+      "type": "integer",
+      "title": "Genese",
+      "description": "CSV column \"Genese\"; observed example value: 1055"
+    },
+    "hud_vl": {
+      "type": "integer",
+      "title": "Hud Vl",
+      "description": "CSV column \"Hud Vl\"; observed example value: 1012"
+    },
+    "longil": {
+      "type": "integer",
+      "title": "Longil",
+      "description": "CSV column \"Longil\"; observed example value: 2240"
+    },
+    "mhk_vl": {
+      "type": "integer",
+      "title": "Mhk Vl",
+      "description": "CSV column \"Mhk Vl\"; observed example value: 770"
+    },
+    "millwd": {
+      "type": "integer",
+      "title": "Millwd",
+      "description": "CSV column \"Millwd\"; observed example value: 247"
+    },
+    "n_y_c": {
+      "type": "integer",
+      "title": "N.Y.C.",
+      "description": "CSV column \"N.Y.C.\"; observed example value: 5464"
+    },
+    "north": {
+      "type": "integer",
+      "title": "North",
+      "description": "CSV column \"North\"; observed example value: 556"
+    },
+    "west": {
+      "type": "integer",
+      "title": "West",
+      "description": "CSV column \"West\"; observed example value: 1645"
+    },
+    "nyiso": {
+      "type": "integer",
+      "title": "NYISO",
+      "description": "CSV column \"NYISO\"; observed example value: 16447"
+    }
+  },
+  "required": [
+    "time_stamp",
+    "capitl",
+    "centrl",
+    "dunwod",
+    "genese",
+    "hud_vl",
+    "longil",
+    "mhk_vl",
+    "millwd",
+    "n_y_c",
+    "north",
+    "west",
+    "nyiso"
+  ],
+  "additionalProperties": false
+}

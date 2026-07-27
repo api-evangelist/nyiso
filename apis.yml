@@ -37,7 +37,7 @@ accessModel:
   - probe
   generated: '2026-07-27'
   method: observed
-image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/groq.png
+image: https://www.nyiso.com/o/nyiso-main-theme/images/logo.svg
 tags:
 - Energy
 - United States
@@ -94,6 +94,42 @@ apis:
     url: https://www.nyiso.com/power-grid-data
   - type: Documentation
     url: https://www.nyiso.com/emissions-data
+  - type: JSONSchema
+    name: Day-Ahead Market Zonal LBMP (P-2A) record
+    url: json-schema/nyiso-damlbmp-zone-schema.json
+  - type: JSONSchema
+    name: Day-Ahead Market Generator LBMP (P-2B) record
+    url: json-schema/nyiso-damlbmp-gen-schema.json
+  - type: JSONSchema
+    name: Real-Time Market Zonal LBMP (P-24A) record
+    url: json-schema/nyiso-realtime-zone-schema.json
+  - type: JSONSchema
+    name: Real-Time Actual Load (P-58B) record
+    url: json-schema/nyiso-pal-schema.json
+  - type: JSONSchema
+    name: Integrated Real-Time Actual Load (P-58C) record
+    url: json-schema/nyiso-palIntegrated-schema.json
+  - type: JSONSchema
+    name: Real-Time Fuel Mix (P-63) record
+    url: json-schema/nyiso-rtfuelmix-schema.json
+  - type: JSONSchema
+    name: ISO Load Forecast (P-7) record
+    url: json-schema/nyiso-isolf-schema.json
+  - type: JSONSchema
+    name: Real-Time Ancillary Services Prices (P-6B) record
+    url: json-schema/nyiso-rtasp-schema.json
+  - type: JSONSchema
+    name: Day-Ahead Ancillary Services Prices (P-5) record
+    url: json-schema/nyiso-damasp-schema.json
+  - type: JSONSchema
+    name: Day-Ahead Scheduled Outages (P-54C) record
+    url: json-schema/nyiso-outSched-schema.json
+  - type: DataModel
+    name: MIS public report catalogue and data model
+    url: data-model/nyiso-data-model.yml
+  - type: AgentSkill
+    name: Pull NYISO market and system data
+    url: skills/nyiso-pull-market-data.md
 - aid: nyiso:nyiso-oasis-postings
   name: NYISO OASIS Postings
   description: NYISO's Open Access Same-Time Information System (OASIS) node, the
@@ -158,6 +194,15 @@ apis:
     url: https://www.nyiso.com/documents/20142/3625950/mpug.pdf
   - type: Documentation
     url: https://www.nyiso.com/documents/20142/3625950/SDA_UG.pdf
+  - type: APIReference
+    name: Finance APIs User's Guide v1.2 (Metering endpoints, parameters and payloads)
+    url: https://www.nyiso.com/documents/20142/45334160/NYISO%20Finance%20APIs%20User's%20Guide%20v1.2%20-%20DRAFT.pdf/4f0de58a-783d-a317-64fe-caed77ba61fa
+  - type: AgentSkill
+    name: Submit and retrieve revenue-grade meter data
+    url: skills/nyiso-submit-meter-data.md
+  - type: Sandbox
+    name: API Market Trial environment (apitest.nyiso.com)
+    url: sandbox/nyiso-sandbox.yml
 - aid: nyiso:nyiso-finance-settlements-api
   name: NYISO Finance Settlements API
   description: The Settlements component of NYISO's Finance APIs. The published
@@ -179,6 +224,12 @@ apis:
     url: https://www.nyiso.com/documents/20142/45334160/NYISO%20Finance%20APIs%20User's%20Guide%20v1.2%20-%20DRAFT.pdf/4f0de58a-783d-a317-64fe-caed77ba61fa
   - type: Documentation
     url: https://www.nyiso.com/billings-and-settlements
+  - type: APIReference
+    name: Finance APIs User's Guide v1.2 (Settlements - GET /v1/stationPower)
+    url: https://www.nyiso.com/documents/20142/45334160/NYISO%20Finance%20APIs%20User's%20Guide%20v1.2%20-%20DRAFT.pdf/4f0de58a-783d-a317-64fe-caed77ba61fa
+  - type: Sandbox
+    name: API Market Trial environment (apitest.nyiso.com)
+    url: sandbox/nyiso-sandbox.yml
 - aid: nyiso:nyiso-finance-invoicing-api
   name: NYISO Finance Invoicing API
   description: The Invoicing component of NYISO's Finance APIs, retrieving daily
@@ -202,6 +253,12 @@ apis:
     url: https://www.nyiso.com/documents/20142/45334160/NYISO%20Finance%20APIs%20User's%20Guide%20v1.2%20-%20DRAFT.pdf/4f0de58a-783d-a317-64fe-caed77ba61fa
   - type: Documentation
     url: https://www.nyiso.com/billings-and-settlements
+  - type: APIReference
+    name: Finance APIs User's Guide v1.2 (Invoicing - daily reconciliation endpoints)
+    url: https://www.nyiso.com/documents/20142/45334160/NYISO%20Finance%20APIs%20User's%20Guide%20v1.2%20-%20DRAFT.pdf/4f0de58a-783d-a317-64fe-caed77ba61fa
+  - type: Sandbox
+    name: API Market Trial environment (apitest.nyiso.com)
+    url: sandbox/nyiso-sandbox.yml
 - aid: nyiso:nyiso-metering-api
   name: NYISO Metering API
   description: NYISO's standalone Metering API, documented separately from the
@@ -228,7 +285,15 @@ apis:
     url: https://www.nyiso.com/documents/20142/3625950/mpug.pdf
   - type: Documentation
     url: https://www.nyiso.com/documents/20142/3625950/SDA_UG.pdf
+  - type: APIReference
+    name: NYISO Metering API User Guide (endpoints, parameters and payloads)
+    url: https://www.nyiso.com/documents/20142/27889215/NYISO%20Metering%20API%20User%20Guide.pdf/d8ed36d3-1a40-9584-6961-3fdb845ca4fa
+  - type: AgentSkill
+    name: Submit and retrieve revenue-grade meter data
+    url: skills/nyiso-submit-meter-data.md
 common:
+- type: DomainSecurity
+  url: security/nyiso-domain-security.yml
 - type: Website
   url: https://www.nyiso.com/
 - type: Portal
@@ -241,6 +306,45 @@ common:
   url: https://www.nyiso.com/market-access-login
 - type: Legal
   url: https://www.nyiso.com/legal-notice
+- type: TermsOfService
+  url: https://www.nyiso.com/legal-notice
+- type: Support
+  name: Stakeholder Services
+  url: https://www.nyiso.com/contact-us
+- type: Blog
+  url: https://www.nyiso.com/blog
+- type: Authentication
+  name: NYISO authentication profile
+  url: authentication/nyiso-authentication.yml
+- type: Conventions
+  name: NYISO API and archive conventions
+  url: conventions/nyiso-conventions.yml
+- type: ErrorCatalog
+  name: NYISO HTTP status and validation error catalogue
+  url: errors/nyiso-problem-types.yml
+- type: Lifecycle
+  name: NYISO versioning, retirement and change communication
+  url: lifecycle/nyiso-lifecycle.yml
+- type: Deprecation
+  name: SDX Upload/Download application retirement notice (sunset 2025-09-17)
+  url: https://www.nyiso.com/documents/20142/20259596/SDX-Upload-Download-Application-Retirement.pdf/93ebf171-b383-520d-b3af-00cb9f433d3c
+- type: Sandbox
+  name: API Market Trial environment and validation-only submissions
+  url: sandbox/nyiso-sandbox.yml
+- type: Conformance
+  name: NYISO standards conformance
+  url: conformance/nyiso-conformance.yml
+- type: Packages
+  name: Third-party NYISO client libraries (no first-party SDK exists)
+  url: packages/nyiso-packages.yml
+- type: DataModel
+  name: NYISO data model and MIS public report catalogue
+  url: data-model/nyiso-data-model.yml
+- type: LLMsTxt
+  url: llms/nyiso-llms.txt
+- type: AgentSkill
+  name: NYISO agent skills index
+  url: skills/_index.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com

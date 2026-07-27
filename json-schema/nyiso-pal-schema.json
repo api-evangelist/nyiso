@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/nyiso/refs/heads/main/json-schema/nyiso-pal-schema.json",
+  "title": "NYISO Real-Time Actual Load record",
+  "description": "Real-time actual load in MW by zone. One object per row of NYISO MIS public archive CSV report P-58B (http://mis.nyiso.com/public/csv/pal/<YYYYMMDD>pal.csv). DERIVED by API Evangelist from the header row and observed values of a live file fetched on 2026-07-27; NYISO publishes no schema document for this report. Timestamps are rendered by NYISO as MM/DD/YYYY HH:MM[:SS] in Eastern time, not ISO-8601.",
+  "x-nyiso-report": "P-58B",
+  "x-source-url": "http://mis.nyiso.com/public/csv/pal/20260726pal.csv",
+  "x-generated": "2026-07-27",
+  "x-method": "derived",
+  "type": "object",
+  "properties": {
+    "time_stamp": {
+      "type": "string",
+      "title": "Time Stamp",
+      "description": "CSV column \"Time Stamp\"; observed example value: 07/26/2026 00:00:00"
+    },
+    "time_zone": {
+      "type": "string",
+      "title": "Time Zone",
+      "description": "CSV column \"Time Zone\"; observed example value: EDT"
+    },
+    "name": {
+      "type": "string",
+      "title": "Name",
+      "description": "CSV column \"Name\"; observed example value: CAPITL"
+    },
+    "ptid": {
+      "type": "integer",
+      "title": "PTID",
+      "description": "CSV column \"PTID\"; observed example value: 61757"
+    },
+    "load": {
+      "type": "number",
+      "title": "Load",
+      "description": "CSV column \"Load\"; observed example value: 1376.9119"
+    }
+  },
+  "required": [
+    "time_stamp",
+    "time_zone",
+    "name",
+    "ptid",
+    "load"
+  ],
+  "additionalProperties": false
+}

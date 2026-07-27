@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/nyiso/refs/heads/main/json-schema/nyiso-outSched-schema.json",
+  "title": "NYISO Day-Ahead Scheduled Outages record",
+  "description": "Day-ahead scheduled transmission equipment outages. One object per row of NYISO MIS public archive CSV report P-54C (http://mis.nyiso.com/public/csv/outSched/<YYYYMMDD>outSched.csv). DERIVED by API Evangelist from the header row and observed values of a live file fetched on 2026-07-27; NYISO publishes no schema document for this report. Timestamps are rendered by NYISO as MM/DD/YYYY HH:MM[:SS] in Eastern time, not ISO-8601.",
+  "x-nyiso-report": "P-54C",
+  "x-source-url": "http://mis.nyiso.com/public/csv/outSched/20260726outSched.csv",
+  "x-generated": "2026-07-27",
+  "x-method": "derived",
+  "type": "object",
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "title": "Timestamp",
+      "description": "CSV column \"Timestamp\"; observed example value: 07/26/2026 00:00:00"
+    },
+    "ptid": {
+      "type": "integer",
+      "title": "PTID",
+      "description": "CSV column \"PTID\"; observed example value: 13269"
+    },
+    "equipment_name": {
+      "type": "string",
+      "title": "Equipment Name",
+      "description": "CSV column \"Equipment Name\"; observed example value: RAMAPO___345KV_35-4500-5"
+    },
+    "scheduled_out_date_time": {
+      "type": "string",
+      "title": "Scheduled Out Date/Time",
+      "description": "CSV column \"Scheduled Out Date/Time\"; observed example value: 02/01/2015 00:00:00"
+    },
+    "scheduled_in_date_time": {
+      "type": "string",
+      "title": "Scheduled In Date/Time",
+      "description": "CSV column \"Scheduled In Date/Time\"; observed example value: 02/01/2030 00:00:00"
+    }
+  },
+  "required": [
+    "timestamp",
+    "ptid",
+    "equipment_name",
+    "scheduled_out_date_time",
+    "scheduled_in_date_time"
+  ],
+  "additionalProperties": false
+}

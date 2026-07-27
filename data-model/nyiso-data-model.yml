@@ -1,0 +1,471 @@
+generated: '2026-07-27'
+method: derived
+source: >-
+  Derived from the NYISO Finance APIs User's Guide v1.2 DRAFT and the NYISO
+  Metering API User Guide for the REST entities, and from live fetches of
+  http://mis.nyiso.com/public/menu.htm, every report index page and ten live CSV
+  files on 2026-07-27 for the public data catalogue. NYISO publishes no
+  machine-readable schema for either surface.
+summary: >-
+  Everything NYISO publishes hangs off one identifier - the PTID, a NYISO-defined
+  integer point identifier for a zone, generator, tie, subzone, load bus or
+  transmission node - and one time key, the service hour or five-minute interval
+  in Eastern time. The REST APIs address PTIDs directly in JSON; the public
+  archive addresses the same PTIDs in dated CSV files. The three reference files
+  (Generator Names P-19, Load Names P-20, Active Transmission Nodes P-66) are the
+  join tables that make every other report resolvable.
+
+keys:
+- key: ptid
+  type: integer
+  description: >-
+    Unique NYISO-defined point identifier. Appears as genPtid, tiePtid,
+    subzonePtid and busPtid in the REST payloads and as a PTID column in nearly
+    every CSV report.
+  resolvers:
+  - http://mis.nyiso.com/public/csv/generator/generator.csv
+  - http://mis.nyiso.com/public/csv/load/load.csv
+  - http://mis.nyiso.com/public/csv/activetransmissionnodes/activetransmissionnodes.csv
+  - https://oasis-postings.nyiso.com/ACTIVE_TRANSMISSION_NODE/CSV/activetransmissionnodes.csv
+- key: dateHour
+  type: ISO-8601 date/time (REST) or MM/DD/YYYY HH:MM (CSV)
+  description: Service hour for metering data; five-minute interval for real-time reports.
+- key: billingMonth
+  type: ISO-8601 month (yyyy-MM)
+  description: Settlement month used to select metering, settlement and invoicing data.
+- key: version
+  type: number with one decimal place, 0 = latest
+  description: Invoice version of settlement data.
+
+entities:
+- name: Generator
+  surface: rest
+  api: NYISO Finance Metering API / NYISO Metering API
+  identifier: genPtid
+  fields:
+  - genPtid
+  - dateHour
+  - meterInjectionEnergyMwh
+  - meterWithdrawalEnergyMwh
+  - meterDemandReductionMwh
+  - version
+  description: >-
+    Revenue-grade hourly meter data for a generator, submitted by a Meter
+    Authority. Injection and withdrawal are constrained to the range
+    -10,000.0000 to 10,000.0000 MWh with four decimal places, and each field is
+    permitted only for a generator with the matching capability.
+  operations:
+  - POST /v1/powerMetering
+  - GET /v1/powerMetering
+- name: Tie
+  surface: rest
+  api: NYISO Finance Metering API / NYISO Metering API
+  identifier: tiePtid
+  fields: [tiePtid, dateHour, meterTieFlowMwh, version]
+  description: Revenue-grade hourly metered flow across an interconnection tie.
+  operations: [POST /v1/powerMetering, GET /v1/powerMetering]
+- name: Subzone
+  surface: rest
+  api: NYISO Finance Metering API / NYISO Metering API
+  identifier: subzonePtid
+  fields: [subzonePtid, dateHour, meterSubzoneLoadMwh, version]
+  description: Revenue-grade hourly metered subzone load.
+  operations: [POST /v1/powerMetering, GET /v1/powerMetering]
+- name: CalculatedSubzoneLoad
+  surface: rest
+  api: NYISO Finance Metering API / NYISO Metering API
+  identifier: subzonePtid
+  description: >-
+    NYISO-calculated subzone load derived from submitted metering, available in
+    summary and detail form.
+  operations:
+  - GET /v1/calculatedSubzoneLoad/summary
+  - GET /v1/calculatedSubzoneLoad/detail
+  derived_from: [Generator, Tie, Subzone]
+- name: TransmissionOwnerLoad
+  surface: rest
+  api: NYISO Finance Metering API
+  identifier: busPtid
+  description: >-
+    Transmission owner load (TOL) submitted per load bus, plus NYISO load
+    verification data in summary and detail form.
+  operations:
+  - POST /v1/transmissionOwnerLoad
+  - GET /v1/transmissionOwnerLoad
+  - GET /v1/transmissionOwnerLoad/verification/summary
+  - GET /v1/transmissionOwnerLoad/verification/detail
+- name: GeneratorPerformance
+  surface: rest
+  api: NYISO Finance Metering API
+  identifier: genPtid
+  description: Generator performance data retrieval.
+  operations: [GET /v1/generatorPerformance]
+- name: MinOilBurnEvent
+  surface: rest
+  api: NYISO Finance Metering API
+  description: >-
+    Minimum oil burn event data, submitted separately by transmission owners and
+    by qualified generators and retrievable in combined form.
+  operations:
+  - POST /v1/minOilBurnEvent/transmissionOwner
+  - POST /v1/minOilBurnEvent/generator
+  - GET /v1/minOilBurnEvent
+- name: StationPower
+  surface: rest
+  api: NYISO Finance Settlements API
+  description: Station power settlement detail for a billing month, with optional invoice version.
+  operations: [GET /v1/stationPower]
+- name: DailyReconciliation
+  surface: rest
+  api: NYISO Finance Invoicing API
+  identifier: dailyReconciliationCode
+  fields: [dailyReconciliationCode, revenues, expenditures, version]
+  description: >-
+    Daily reconciliation of settlement dollars and energy volumes, selectable by
+    billingMonth or by a startDate/endDate range of at most 31 days, optionally
+    including NYISO-wide aggregate sums.
+  operations:
+  - GET /v1/dailyReconciliation/dollar
+  - GET /v1/dailyReconciliation/mwh
+
+relationships:
+- from: CalculatedSubzoneLoad
+  to: Subzone
+  type: belongs_to
+  via: subzonePtid
+  evidence: Calculated subzone load is retrieved and reported per subzone PTID.
+- from: Generator
+  to: ActiveTransmissionNode
+  type: belongs_to
+  via: PTID
+  evidence: >-
+    Generator PTIDs resolve against the Active Transmission Nodes and Generator
+    Names reference files, which carry Node Name, PTID, Subzone and Zone.
+- from: ActiveTransmissionNode
+  to: Subzone
+  type: belongs_to
+  via: Subzone column
+  evidence: 'activetransmissionnodes.csv header: "Node Name","PTID","Subzone","Zone".'
+- from: Subzone
+  to: Zone
+  type: belongs_to
+  via: Zone column
+  evidence: Same reference file; subzone definitions are published separately as report P-36.
+- from: DailyReconciliation
+  to: StationPower
+  type: none
+  via: null
+  evidence: >-
+    No cross-reference between invoicing and settlements payloads is documented;
+    recorded explicitly as absent rather than inferred.
+
+public_data_catalog:
+  base_url: http://mis.nyiso.com/public
+  index: http://mis.nyiso.com/public/menu.htm
+  fetched: '2026-07-27'
+  report_count: 58
+  url_convention: see conventions/nyiso-conventions.yml
+  note: >-
+    Every index page below returned 200 and the sample file shown is a real link
+    lifted from that index at fetch time. Sample files are dated examples of a
+    daily pattern - substitute the date you need. Where a schema is listed, API
+    Evangelist derived it from the live header row of that report.
+  reports:
+  - report: P-2A
+    label: "Day-Ahead Market (DAM) LBMP - Zonal"
+    section: "Pricing Data"
+    index: http://mis.nyiso.com/public/P-2Alist.htm
+    sample_file: http://mis.nyiso.com/public/csv/damlbmp/20260728damlbmp_zone.csv
+    schema: json-schema/nyiso-damlbmp-zone-schema.json
+  - report: P-2B
+    label: "Day-Ahead Market (DAM) LBMP - Generator"
+    section: "Pricing Data"
+    index: http://mis.nyiso.com/public/P-2Blist.htm
+    sample_file: http://mis.nyiso.com/public/csv/damlbmp/20260728damlbmp_gen.csv
+    schema: json-schema/nyiso-damlbmp-gen-schema.json
+  - report: P-24A
+    label: "Real-Time Market LBMP - Zonal"
+    section: "Pricing Data"
+    index: http://mis.nyiso.com/public/P-24Alist.htm
+    sample_file: http://mis.nyiso.com/public/realtime/realtime_zone_lbmp.csv
+    schema: json-schema/nyiso-realtime-zone-schema.json
+  - report: P-24B
+    label: "Real-Time Market LBMP - Generator"
+    section: "Pricing Data"
+    index: http://mis.nyiso.com/public/P-24Blist.htm
+    sample_file: http://mis.nyiso.com/public/realtime/realtime_gen_lbmp.csv
+  - report: P-4A
+    label: "Time-Weighted/Integrated Real-Time LBMP - Zonal"
+    section: "Pricing Data"
+    index: http://mis.nyiso.com/public/P-4Alist.htm
+    sample_file: http://mis.nyiso.com/public/csv/rtlbmp/20260727rtlbmp_zone.csv
+  - report: P-4B
+    label: "Time-Weighted/Integrated Real-Time LBMP - Generator"
+    section: "Pricing Data"
+    index: http://mis.nyiso.com/public/P-4Blist.htm
+    sample_file: http://mis.nyiso.com/public/csv/rtlbmp/20260727rtlbmp_gen.csv
+  - report: P-6B
+    label: "Ancillary Service Prices - Real-Time Market"
+    section: "Pricing Data"
+    index: http://mis.nyiso.com/public/P-6Blist.htm
+    sample_file: http://mis.nyiso.com/public/csv/rtasp/20260727rtasp.csv
+    schema: json-schema/nyiso-rtasp-schema.json
+  - report: P-5
+    label: "Ancillary Service Prices - Day-Ahead Market"
+    section: "Pricing Data"
+    index: http://mis.nyiso.com/public/P-5list.htm
+    sample_file: http://mis.nyiso.com/public/csv/damasp/20260728damasp.csv
+    schema: json-schema/nyiso-damasp-schema.json
+  - report: P-28
+    label: "NYISO Reference Bus LBMP"
+    section: "Pricing Data"
+    index: http://mis.nyiso.com/public/P-28list.htm
+    sample_file: http://mis.nyiso.com/public/csv/refbus/20260728damlbmp_gen_refbus.csv
+  - report: P-29
+    label: "NYISO Price Correction Logs"
+    section: "Pricing Data"
+    index: http://mis.nyiso.com/public/P-29list.htm
+    sample_file: http://mis.nyiso.com/public/pdf/corrlogs/CorrLogDescription.pdf
+  - report: P-42
+    label: "RTC vs. External RTO CTS Prices"
+    section: "Pricing Data"
+    index: http://mis.nyiso.com/public/P-42list.htm
+    sample_file: http://mis.nyiso.com/public/csv/extrtoctsprice/20260727ext_rto_cts_price.csv
+  - report: P-54A
+    label: "Real-Time Scheduled Outages"
+    section: "Power Grid Data"
+    index: http://mis.nyiso.com/public/P-54Alist.htm
+    sample_file: http://mis.nyiso.com/public/csv/schedlineoutages/currentSCLineOutages.csv
+  - report: P-54B
+    label: "Real-Time Actual Outages"
+    section: "Power Grid Data"
+    index: http://mis.nyiso.com/public/P-54Blist.htm
+    sample_file: http://mis.nyiso.com/public/csv/realtimelineoutages/currentRTLineOutages.csv
+  - report: P-54C
+    label: "Day-Ahead Scheduled Outages"
+    section: "Power Grid Data"
+    index: http://mis.nyiso.com/public/P-54Clist.htm
+    sample_file: http://mis.nyiso.com/public/csv/outSched/20260728outSched.csv
+    schema: json-schema/nyiso-outSched-schema.json
+  - report: P-14
+    label: "Outage Schedules"
+    section: "Power Grid Data"
+    index: http://mis.nyiso.com/public/P-14list.htm
+    sample_file: http://mis.nyiso.com/public/pdf/os/outages.pdf
+  - report: P-14B
+    label: "Outage Schedules CSV"
+    section: "Power Grid Data"
+    index: http://mis.nyiso.com/public/P-14Blist.htm
+    sample_file: http://mis.nyiso.com/public/csv/os/outage-schedule.csv
+  - report: P-15
+    label: "Generation Maintenance Report"
+    section: "Power Grid Data"
+    index: http://mis.nyiso.com/public/P-15list.htm
+    sample_file: http://mis.nyiso.com/public/csv/genmaint/gen_maint_report.csv
+  - report: P-511A
+    label: "Day-Ahead Limiting Constraints"
+    section: "Power Grid Data"
+    index: http://mis.nyiso.com/public/P-511Alist.htm
+    sample_file: http://mis.nyiso.com/public/csv/DAMLimitingConstraints/20260728DAMLimitingConstraints.csv
+  - report: P-33
+    label: "Limiting Constraints"
+    section: "Power Grid Data"
+    index: http://mis.nyiso.com/public/P-33list.htm
+    sample_file: http://mis.nyiso.com/public/csv/LimitingConstraints/currentLimitingConstraints.csv
+  - report: P-32
+    label: "Internal & External Interface Limits & Flows"
+    section: "Power Grid Data"
+    index: http://mis.nyiso.com/public/P-32list.htm
+    sample_file: http://mis.nyiso.com/public/csv/ExternalLimitsFlows/currentExternalLimitsFlows.csv
+  - report: P-53B
+    label: "Lake Erie Circulation - Day-Ahead"
+    section: "Power Grid Data"
+    index: http://mis.nyiso.com/public/P-53Blist.htm
+    sample_file: http://mis.nyiso.com/public/csv/eriecirculationda/20260728ErieCirculationDA.csv
+  - report: P-34A
+    label: "Lake Erie Circulation - Real-Time"
+    section: "Power Grid Data"
+    index: http://mis.nyiso.com/public/P-34Alist.htm
+    sample_file: http://mis.nyiso.com/public/csv/eriecirculationrt/20260727ErieCirculationRT.csv
+  - report: P-53A
+    label: "PAR Schedules"
+    section: "Power Grid Data"
+    index: http://mis.nyiso.com/public/P-53Alist.htm
+    sample_file: http://mis.nyiso.com/public/txt/parSchedule/20260701parSchedule_txt.zip
+  - report: P-34
+    label: "PAR Flows"
+    section: "Power Grid Data"
+    index: http://mis.nyiso.com/public/P-34list.htm
+    sample_file: http://mis.nyiso.com/public/csv/ParFlows/currentParFlows.csv
+  - report: P-8
+    label: "ATC/TTC"
+    section: "Power Grid Data"
+    index: http://mis.nyiso.com/public/P-8list.htm
+    sample_file: http://mis.nyiso.com/public/csv/atc_ttc/20260728atc_ttc.csv
+  - report: P-8A
+    label: "Long Term ATC/TTC"
+    section: "Power Grid Data"
+    index: http://mis.nyiso.com/public/P-8Alist.htm
+    sample_file: http://mis.nyiso.com/public/csv/preSchedAtcTtc/20260727presched_atc_ttc.csv
+  - report: P-18
+    label: "TTC Forecast"
+    section: "Power Grid Data"
+    index: http://mis.nyiso.com/public/P-18list.htm
+    sample_file: http://mis.nyiso.com/public/pdf/ttcf/ttcf.pdf
+  - report: P-12
+    label: "Grandfathered Transmission Rights"
+    section: "Power Grid Data"
+    index: http://mis.nyiso.com/public/P-12list.htm
+    sample_file: http://mis.nyiso.com/public/pdf/gtr/grandfathered.pdf
+  - report: null
+    label: "Transfer Limitations"
+    section: "Load Data"
+    index: http://mis.nyiso.com/public/ttcf.htm
+  - report: P-7
+    label: "ISO Load Forecast"
+    section: "Load Data"
+    index: http://mis.nyiso.com/public/P-7list.htm
+    sample_file: http://mis.nyiso.com/public/csv/isolf/20260728isolf.csv
+    schema: json-schema/nyiso-isolf-schema.json
+  - report: P-59
+    label: "Zonal Bid Load"
+    section: "Load Data"
+    index: http://mis.nyiso.com/public/P-59list.htm
+    sample_file: http://mis.nyiso.com/public/csv/zonalBidLoad/20260728zonalBidLoad.csv
+  - report: P-7A
+    label: "Weather Forecast"
+    section: "Load Data"
+    index: http://mis.nyiso.com/public/P-7Alist.htm
+    sample_file: http://mis.nyiso.com/public/csv/lfweather/20260727lfweather.csv
+  - report: P-58B
+    label: "Real-Time Actual Load"
+    section: "Load Data"
+    index: http://mis.nyiso.com/public/P-58Blist.htm
+    sample_file: http://mis.nyiso.com/public/csv/pal/20260727pal.csv
+    schema: json-schema/nyiso-pal-schema.json
+  - report: P-58C
+    label: "Integrated Real-Time Actual Load"
+    section: "Load Data"
+    index: http://mis.nyiso.com/public/P-58Clist.htm
+    sample_file: http://mis.nyiso.com/public/csv/palIntegrated/20260727palIntegrated.csv
+    schema: json-schema/nyiso-palIntegrated-schema.json
+  - report: P-30
+    label: "Day-Ahead Market Daily Energy Report"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-30list.htm
+    sample_file: http://mis.nyiso.com/public/csv/damenergy/20260728DAM_energy_rep.csv
+  - report: P-60
+    label: "NYISO Capacity Report"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-60list.htm
+    sample_file: http://mis.nyiso.com/public/htm/capacityreport/zip/20260701CapacityReport.zip
+  - report: P-31
+    label: "Balancing Market Advisory Summary"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-31list.htm
+    sample_file: http://mis.nyiso.com/public/csv/hamenergy/20260727HAM_energy_rep.csv
+  - report: P-35
+    label: "Real-Time Events"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-35list.htm
+    sample_file: http://mis.nyiso.com/public/csv/RealTimeEvents/20260727RealTimeEvents.csv
+  - report: P-63
+    label: "Real-Time Fuel Mix"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-63list.htm
+    sample_file: http://mis.nyiso.com/public/csv/rtfuelmix/20260727rtfuelmix.csv
+    schema: json-schema/nyiso-rtfuelmix-schema.json
+  - report: P-25
+    label: "NYISO Operational Announcements"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-25list.htm
+    sample_file: http://mis.nyiso.com/public/csv/OperMessages/20260727OperMessages.csv
+  - report: P-26
+    label: "Operator Initiated Commitments"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-26list.htm
+    sample_file: http://mis.nyiso.com/public/csv/OpInCommit/20260727OpInCommit.csv
+  - report: P-45
+    label: "Zonal Uplift Report"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-45list.htm
+    sample_file: http://mis.nyiso.com/public/csv/ZonalUplift/20260615zonaluplift.csv
+  - report: P-46
+    label: "Resource Uplift Report"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-46list.htm
+    sample_file: http://mis.nyiso.com/public/csv/ResourceUplift/20260415resourceuplift.csv
+  - report: P-71
+    label: "Day-Ahead IMER Report"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-71list.htm
+    sample_file: http://mis.nyiso.com/public/csv/damimer/20260728dam_imer.csv
+  - report: P-72
+    label: "Real-Time IMER Report"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-72list.htm
+    sample_file: http://mis.nyiso.com/public/csv/rtimer/20260727rt_imer.csv
+  - report: P-70B
+    label: "BTM Solar Information - Zonal Forecast"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-70Blist.htm
+    sample_file: http://mis.nyiso.com/public/csv/btmdaforecast/20260728btmdaforecast.csv
+  - report: P-70A
+    label: "BTM Solar Information - Estimated Actuals"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-70Alist.htm
+    sample_file: http://mis.nyiso.com/public/csv/btmactualforecast/20260726BTMEstimatedActual.csv
+  - report: P-70C
+    label: "BTM Solar Information - Installed Capacity Tracking"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-70Clist.htm
+    sample_file: http://mis.nyiso.com/public/csv/btminstalledcapacitytracking/20260726btminstalledcapacitytracking.csv
+  - report: P-27
+    label: "NYISO Bid Data"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-27list.htm
+    sample_file: https://mis.nyiso.com/public/postings/NYISO%203%20Month%20Bid%20Data%20Release%20Description_V1.pdf
+  - report: P-61
+    label: "NYISO Generation Economic Dispatch Analysis"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-61list.htm
+    sample_file: http://mis.nyiso.com/public/pdf/genideal/20050427genideal.pdf
+  - report: P-19
+    label: "Generator Names"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-19list.htm
+    sample_file: http://mis.nyiso.com/public/csv/generator/generator.csv
+  - report: P-20
+    label: "Load Names"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-20list.htm
+    sample_file: http://mis.nyiso.com/public/csv/load/load.csv
+  - report: P-66
+    label: "Active Transmission Nodes"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-66list.htm
+    sample_file: http://mis.nyiso.com/public/csv/activetransmissionnodes/activetransmissionnodes.csv
+  - report: P-16
+    label: "Transmission Owner Information"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-16list.htm
+  - report: P-23
+    label: "Subzones by Transmission Owner"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-23list.htm
+    sample_file: http://mis.nyiso.com/public/csv/tp/tp.csv
+  - report: P-930A
+    label: "DOE EIA 930 - Same-Day Hourly Demand Posting"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-930Alist.htm
+    sample_file: http://mis.nyiso.com/public/csv/eiasameday/NYISsamedaydemand.csv
+  - report: P-930B
+    label: "DOE EIA 930 - Daily Posting"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-930Blist.htm
+    sample_file: http://mis.nyiso.com/public/csv/eiadaily/NYISdaily2082026.csv
+  - report: P-36
+    label: "Subzone Definitions"
+    section: "Reports & Information"
+    index: http://mis.nyiso.com/public/P-36list.htm
+    sample_file: http://mis.nyiso.com/public/csv/Subzone_Definitions/20020916Subzone_Definitions_csv.zip

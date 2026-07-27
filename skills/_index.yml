@@ -1,0 +1,36 @@
+generated: '2026-07-27'
+method: generated
+source: >-
+  Grounded in probe-verified MIS archive paths (fetched 2026-07-27) and in the
+  published NYISO Finance APIs User's Guide v1.2 DRAFT and Metering API User
+  Guide. NYISO publishes no OpenAPI and no provider-authored agent skills, so
+  these are API Evangelist skills built only from documented endpoints and live
+  responses - no invented operations.
+skills:
+- file: nyiso-pull-market-data.md
+  name: Pull NYISO market and system data
+  api: http://mis.nyiso.com/public
+  auth: none
+  operations:
+  - GET /public/csv/damlbmp/<YYYYMMDD>damlbmp_zone.csv
+  - GET /public/csv/realtime/<YYYYMMDD>realtime_zone.csv
+  - GET /public/csv/pal/<YYYYMMDD>pal.csv
+  - GET /public/csv/rtfuelmix/<YYYYMMDD>rtfuelmix.csv
+  - GET /public/csv/isolf/<YYYYMMDD>isolf.csv
+  - GET /public/csv/rtasp/<YYYYMMDD>rtasp.csv
+  - GET /public/csv/damasp/<YYYYMMDD>damasp.csv
+  - GET /public/csv/outSched/<YYYYMMDD>outSched.csv
+- file: nyiso-submit-meter-data.md
+  name: Submit and retrieve revenue-grade meter data (NYISO Finance Metering API)
+  api: https://api.nyiso.com/finance/metering
+  auth: HTTP Basic (MIS account) plus NAESB client certificate
+  operations:
+  - POST /v1/powerMetering
+  - GET /v1/powerMetering
+  - GET /v1/calculatedSubzoneLoad/summary
+  - GET /v1/calculatedSubzoneLoad/detail
+  - POST /v1/transmissionOwnerLoad
+  - GET /v1/transmissionOwnerLoad
+  - GET /v1/transmissionOwnerLoad/verification/summary
+  - GET /v1/transmissionOwnerLoad/verification/detail
+  - GET /v1/generatorPerformance

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/nyiso/refs/heads/main/json-schema/nyiso-damasp-schema.json",
+  "title": "NYISO Day-Ahead Ancillary Services Prices record",
+  "description": "Day-ahead market ancillary services clearing prices by zone. One object per row of NYISO MIS public archive CSV report P-5 (http://mis.nyiso.com/public/csv/damasp/<YYYYMMDD>damasp.csv). DERIVED by API Evangelist from the header row and observed values of a live file fetched on 2026-07-27; NYISO publishes no schema document for this report. Timestamps are rendered by NYISO as MM/DD/YYYY HH:MM[:SS] in Eastern time, not ISO-8601.",
+  "x-nyiso-report": "P-5",
+  "x-source-url": "http://mis.nyiso.com/public/csv/damasp/20260726damasp.csv",
+  "x-generated": "2026-07-27",
+  "x-method": "derived",
+  "type": "object",
+  "properties": {
+    "time_stamp": {
+      "type": "string",
+      "title": "Time Stamp",
+      "description": "CSV column \"Time Stamp\"; observed example value: 07/26/2026 00:00"
+    },
+    "time_zone": {
+      "type": "string",
+      "title": "Time Zone",
+      "description": "CSV column \"Time Zone\"; observed example value: EDT"
+    },
+    "name": {
+      "type": "string",
+      "title": "Name",
+      "description": "CSV column \"Name\"; observed example value: CAPITL"
+    },
+    "ptid": {
+      "type": "integer",
+      "title": "PTID",
+      "description": "CSV column \"PTID\"; observed example value: 61757"
+    },
+    "10_min_spinning_reserve_usd_per_mwh": {
+      "type": "number",
+      "title": "10 Min Spinning Reserve ($/MWHr)",
+      "description": "CSV column \"10 Min Spinning Reserve ($/MWHr)\"; observed example value: 7.00"
+    },
+    "10_min_non_synchronous_reserve_usd_per_mwh": {
+      "type": "number",
+      "title": "10 Min Non-Synchronous Reserve ($/MWHr)",
+      "description": "CSV column \"10 Min Non-Synchronous Reserve ($/MWHr)\"; observed example value: 7.00"
+    },
+    "30_min_operating_reserve_usd_per_mwh": {
+      "type": "number",
+      "title": "30 Min Operating Reserve ($/MWHr)",
+      "description": "CSV column \"30 Min Operating Reserve ($/MWHr)\"; observed example value: 4.00"
+    },
+    "nyca_regulation_capacity_usd_per_mwh": {
+      "type": "number",
+      "title": "NYCA Regulation Capacity ($/MWHr)",
+      "description": "CSV column \"NYCA Regulation Capacity ($/MWHr)\"; observed example value: 11.00"
+    }
+  },
+  "required": [
+    "time_stamp",
+    "time_zone",
+    "name",
+    "ptid",
+    "10_min_spinning_reserve_usd_per_mwh",
+    "10_min_non_synchronous_reserve_usd_per_mwh",
+    "30_min_operating_reserve_usd_per_mwh",
+    "nyca_regulation_capacity_usd_per_mwh"
+  ],
+  "additionalProperties": false
+}

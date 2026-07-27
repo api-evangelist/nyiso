@@ -1,0 +1,54 @@
+generated: '2026-07-27'
+method: probed
+source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
+hosts:
+- host: www.nyiso.com
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Nov  8 11:51:20 2026 GMT
+  hsts: true
+  hsts_max_age: 31536000
+- host: mis.nyiso.com
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Oct 31 13:31:01 2026 GMT
+  hsts: false
+- host: oasis.nyiso.com
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Sep 23 12:41:13 2026 GMT
+  hsts: false
+- host: api.nyiso.com
+  https: true
+  tls_version: TLSv1.3
+  tls_versions_accepted: [TLSv1.2, TLSv1.3]
+  cert_expires: Sep 23 12:41:13 2026 GMT
+  hsts: false
+  server: awselb/2.0
+  note: >-
+    Added by hand on 2026-07-27 - the script probes apis.yml Website/Portal and
+    OpenAPI servers[] hosts, and this repo has no OpenAPI, so the API hosts were
+    not covered. Anonymous root returns 404; all documented endpoints return 401.
+- host: apitest.nyiso.com
+  https: true
+  tls_version: TLSv1.3
+  tls_versions_accepted: [TLSv1.2, TLSv1.3]
+  cert_expires: Jan 15 23:59:59 2027 GMT
+  hsts: false
+  server: awselb/2.0
+  note: Market-trial environment; hand-probed 2026-07-27.
+- host: oasis-postings.nyiso.com
+  https: true
+  tls_version: TLSv1.3
+  tls_versions_accepted: [TLSv1.2, TLSv1.3]
+  cert_expires: Sep 23 12:41:13 2026 GMT
+  hsts: false
+  server: AmazonS3
+  note: Hand-probed 2026-07-27; anonymous ListBucket returns 200 application/xml.
+domains:
+- domain: nyiso.com
+  dnssec: false
+  caa: []
+  spf: true
+  dmarc: true
+  dmarc_policy: quarantine

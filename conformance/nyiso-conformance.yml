@@ -1,0 +1,136 @@
+generated: '2026-07-27'
+method: searched
+source: >-
+  NYISO published user guides, live probes of NYISO hosts on 2026-07-27, and the
+  regime analysis in review.yml
+summary: >-
+  NYISO's genuine standards footprint is regulatory rather than technical. FERC
+  Order 889/890 obliges it to run an OASIS node and that node is verified live
+  and openly readable. NAESB appears twice - as the OASIS WEQ-001 business
+  practice standards behind that obligation (conformance NOT verified) and as the
+  PKI regime that issues the client certificates its REST APIs require
+  (conformance verified from the guides). Everything from the modern web-API
+  standards stack - OpenAPI, OAuth 2.0, OpenID Connect, RFC 9457, RFC 9116,
+  well-known discovery - is absent, and every consumer energy-data standard is
+  inapplicable because NYISO holds no retail customer relationships.
+
+standards:
+- id: ferc-order-889-890-oasis
+  name: FERC Order No. 889 / No. 890 Open Access Same-Time Information System
+  conforms: true
+  evidence: >-
+    Live OASIS node at http://oasis.nyiso.com/ (200) backed by
+    https://oasis-postings.nyiso.com, which answered an anonymous ListBucket with
+    200 application/xml and served
+    ACTIVE_TRANSMISSION_NODE/CSV/activetransmissionnodes.csv at 200 text/csv,
+    with posting keys dated from 1999-11-18. Verified by probe, not by reading a
+    compliance page.
+- id: naesb-weq-001-oasis-template
+  name: NAESB WEQ-001 OASIS Business Practice Standards (template interface)
+  conforms: unverified
+  evidence: >-
+    Template-style paths under oasis.nyiso.com (/oasis/data/nyiso/system_data,
+    /oasis/data, /OASIS/) all returned the single-page application's HTML shell
+    rather than a template response. The node is live and open; WEQ-001 template
+    conformance could not be confirmed anonymously and is deliberately not
+    asserted.
+- id: naesb-pki
+  name: NAESB PKI / Authorized Certification Authority digital certificates
+  conforms: true
+  evidence: >-
+    Both published guides require "The NAESB certificate associated with the MIS
+    user account must be provided with each request" as the second factor on
+    every Finance and Metering API call.
+- id: iso-8601
+  name: ISO 8601 date and time representation
+  conforms: true
+  evidence: >-
+    Finance APIs guide section 2.4.2 mandates yyyy-MM, yyyy-MM-dd and
+    yyyy-MM-ddTHH:mm:ssX with Eastern offsets across all request and response
+    bodies. Note the MIS public CSV archive does NOT follow this - it emits
+    MM/DD/YYYY HH:MM in Eastern clock time.
+- id: http-basic-rfc7617
+  name: HTTP Basic authentication (RFC 7617)
+  conforms: true
+  evidence: >-
+    "Authorization: Basic" on every documented REST request; live 401 challenges
+    from nginx on api.nyiso.com and apitest.nyiso.com.
+- id: tls-1-2
+  name: TLS 1.2 minimum transport
+  conforms: true
+  evidence: >-
+    "All Finance API service endpoints shall be accessed via HTTPS 1.1 over TLS
+    1.2." Probe on 2026-07-27 found api.nyiso.com and apitest.nyiso.com
+    negotiating both TLS 1.2 and TLS 1.3.
+- id: openapi
+  name: OpenAPI Specification
+  conforms: false
+  evidence: >-
+    No OpenAPI, Swagger, WSDL or JSON Schema document exists on any NYISO host.
+    /openapi.json, /openapi.yaml, /swagger.json, /api-docs, /docs and /v1 all
+    returned 404 or 401 on api.nyiso.com and 404 on www.nyiso.com,
+    oasis-postings.nyiso.com and mis.nyiso.com. API documentation is distributed
+    as PDF user guides.
+- id: oauth2
+  name: OAuth 2.0
+  conforms: false
+  evidence: No OAuth flow, token endpoint or scope surface is documented or discoverable.
+- id: openid-connect
+  name: OpenID Connect
+  conforms: false
+  evidence: /.well-known/openid-configuration returned 404 on every NYISO host.
+- id: rfc8414-oauth-metadata
+  name: OAuth 2.0 Authorization Server Metadata (RFC 8414)
+  conforms: false
+  evidence: /.well-known/oauth-authorization-server returned 404.
+- id: rfc9457-problem-details
+  name: Problem Details for HTTP APIs (RFC 9457)
+  conforms: false
+  evidence: >-
+    Errors are plain HTTP status codes plus a NYISO-proprietary validation
+    envelope with code-prefixed message strings; no application/problem+json.
+- id: rfc9116-security-txt
+  name: security.txt (RFC 9116)
+  conforms: false
+  evidence: /.well-known/security.txt returned 404 on every NYISO host.
+- id: rfc8594-sunset-header
+  name: Sunset HTTP header (RFC 8594)
+  conforms: false
+  evidence: No Sunset or Deprecation header support is documented; retirements are announced in PDF notices.
+- id: rfc9727-api-catalog
+  name: API Catalog well-known URI (RFC 9727)
+  conforms: false
+  evidence: /.well-known/api-catalog returned 404.
+- id: asyncapi
+  name: AsyncAPI
+  conforms: false
+  evidence: >-
+    NYISO exposes no webhook, streaming or event-subscription surface. Change
+    notification is by polling the file archive or reading Operational
+    Announcements.
+- id: green-button-espi
+  name: Green Button / NAESB ESPI consumer energy data
+  conforms: false
+  evidence: >-
+    Not applicable rather than missing - Green Button and ESPI bind distribution
+    utilities holding retail customer relationships. NYISO is the wholesale system
+    operator, holds no retail customers and makes no Green Button claim anywhere.
+- id: iec-cim-61968-61970
+  name: IEC CIM 61968 / 61970 common information model
+  conforms: false
+  evidence: No CIM reference found on any NYISO surface; payloads are NYISO-proprietary JSON and CSV.
+- id: ieee-2030-5
+  name: IEEE 2030.5 smart energy profile
+  conforms: false
+  evidence: No reference found; NYISO operates no DER-facing device interface.
+
+certifications:
+  published: false
+  note: >-
+    No SOC 2, ISO 27001, PCI DSS, HIPAA, FedRAMP or CSA STAR attestation is
+    published, and no trust centre exists - trust.nyiso.com and security.nyiso.com
+    do not resolve and /security and /compliance return 404. NYISO's compliance
+    posture is FERC/NERC regulatory, published as tariff filings and reliability
+    compliance rather than as a security certification programme. No Compliance
+    pointer is wired into apis.yml because there is no published compliance
+    programme page to point at.

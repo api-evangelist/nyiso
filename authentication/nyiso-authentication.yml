@@ -1,0 +1,102 @@
+generated: '2026-07-27'
+method: searched
+source: >-
+  NYISO Metering API User Guide (section 2.1-2.3) and NYISO Finance APIs User's
+  Guide v1.2 DRAFT (section 2.1-2.3), plus anonymous HTTP probes of every NYISO
+  host on 2026-07-27
+docs: https://www.nyiso.com/manuals-tech-bulletins-user-guides
+summary:
+  types:
+  - none
+  - http
+  - mutualTLS
+  api_key_in: []
+  oauth2_flows: []
+  note: >-
+    NYISO runs two completely different authentication postures on two
+    completely different surfaces. The open data surfaces have no authentication
+    at all. The REST APIs use documented two-factor authentication - HTTP Basic
+    with an MIS user account plus a NAESB-accredited client certificate. There is
+    no API key, no OAuth 2.0, no OpenID Connect and no bearer token anywhere in
+    the NYISO estate, and no /.well-known/ discovery document exists to describe
+    one.
+surfaces:
+- surface: MIS public data archive
+  base_url: http://mis.nyiso.com/public
+  scheme: none
+  description: >-
+    Fully anonymous HTTP/HTTPS GET. No account, no key, no application, no
+    referrer check and no licence click-through. Verified by anonymous probe on
+    2026-07-27 - daily CSV and monthly ZIP files returned 200 text/csv with no
+    credentials presented.
+  evidence: http://mis.nyiso.com/public/csv/rtfuelmix/20260726rtfuelmix.csv returned 200
+- surface: OASIS postings
+  base_url: https://oasis-postings.nyiso.com
+  scheme: none
+  description: >-
+    Anonymously readable object store. An unauthenticated ListBucket request
+    returned 200 application/xml and individual posting objects returned 200.
+  evidence: https://oasis-postings.nyiso.com/ACTIVE_TRANSMISSION_NODE/CSV/activetransmissionnodes.csv returned 200
+- surface: Finance APIs and Metering API
+  base_url: https://api.nyiso.com
+  scheme: two-factor - HTTP Basic plus NAESB client certificate
+  description: >-
+    Restricted to NYISO market participants. Both published user guides state the
+    same requirement verbatim - "A valid MIS user account and associated password
+    must be provided using Basic authentication" and "The NAESB certificate
+    associated with the MIS user account must be provided with each request".
+    All endpoints answered 401 Authorization Required to anonymous probes.
+  evidence: https://api.nyiso.com/finance/metering/v1/powerMetering returned 401
+schemes:
+- name: MISBasicAuth
+  type: http
+  scheme: basic
+  in: header
+  parameter: Authorization
+  description: >-
+    HTTP Basic credential carrying a valid NYISO Market Information System (MIS)
+    user account and its password. The account must hold the relevant metering or
+    settlement privileges, granted by the participant's own Marketplace
+    administrator per the NYISO Settlement Data Applications User's Guide.
+  sources:
+  - https://www.nyiso.com/documents/20142/27889215/NYISO%20Metering%20API%20User%20Guide.pdf/d8ed36d3-1a40-9584-6961-3fdb845ca4fa
+  - https://www.nyiso.com/documents/20142/45334160/NYISO%20Finance%20APIs%20User's%20Guide%20v1.2%20-%20DRAFT.pdf/4f0de58a-783d-a317-64fe-caed77ba61fa
+- name: NAESBClientCertificate
+  type: mutualTLS
+  description: >-
+    A digital certificate issued by a NAESB-Authorized Certification Authority
+    and bound to the MIS user account, presented on every request. This is the
+    second factor - Basic credentials alone are not sufficient. Certificate
+    acquisition and MIS account binding are described in the NYISO Market
+    Participant User's Guide (MPUG).
+  sources:
+  - https://www.nyiso.com/documents/20142/3625950/mpug.pdf
+- name: None
+  type: none
+  description: >-
+    The MIS public archive and the OASIS postings bucket require no
+    authentication of any kind.
+transport:
+  documented: HTTPS 1.1 over TLS 1.2
+  observed: >-
+    api.nyiso.com and apitest.nyiso.com negotiate both TLS 1.2 and TLS 1.3 as of
+    the 2026-07-27 probe; the guides state TLS 1.2 as the documented minimum.
+  note: >-
+    mis.nyiso.com also serves the public archive over plain HTTP, which is how
+    NYISO's own list pages link it.
+onboarding:
+  self_serve: false
+  path: >-
+    Become a registered NYISO Market Participant, obtain an MIS user account with
+    metering/settlement privileges through your organization's Marketplace
+    administrator, then obtain a NAESB-accredited digital certificate bound to
+    that account. There is no developer sign-up form and no anonymous trial - the
+    market-trial host apitest.nyiso.com is credentialed too.
+  contact: Stakeholder_Services@nyiso.com / +1 518-356-6060
+  guides:
+  - https://www.nyiso.com/documents/20142/3625950/mpug.pdf
+  - https://www.nyiso.com/documents/20142/3625950/SDA_UG.pdf
+discovery:
+  well_known_openid_configuration: 404
+  well_known_oauth_authorization_server: 404
+  note: See well-known/nyiso-well-known.yml for the full probe record.

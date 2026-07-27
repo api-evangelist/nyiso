@@ -1,0 +1,64 @@
+generated: '2026-07-27'
+method: searched
+source: >-
+  npm, PyPI, RubyGems, crates.io and GitHub searches on 2026-07-27, plus the
+  NYISO user guides and website
+summary: >-
+  NYISO ships no client libraries. There is no first-party SDK in any language,
+  no CLI, no published Postman collection and no NYISO GitHub organization - the
+  github.com/nyiso account exists but is an empty, unverified user with no
+  repositories and is NOT recorded as an official NYISO presence. What does
+  exist is a small third-party ecosystem that wraps the open MIS archive; those
+  libraries are catalogued below with official set to false so no SDK pointer is
+  claimed for NYISO.
+official_sdks: 0
+packages:
+- language: python
+  registry: pypi
+  name: gridstatus
+  url: https://pypi.org/project/gridstatus/
+  install: pip install gridstatus
+  official: false
+  vendor: Grid Status (third party)
+  source_code: https://github.com/gridstatus/gridstatus
+  covers: >-
+    NYISO among several US ISOs/RTOs; the library ships a dedicated NYISO module
+    that reads the MIS public CSV archive (fuel mix, load, load forecast, LBMP).
+  evidence: >-
+    https://raw.githubusercontent.com/gridstatus/gridstatus/main/gridstatus/nyiso.py
+    returned 200 on 2026-07-27.
+- language: python
+  registry: pypi
+  name: pyiso
+  url: https://pypi.org/project/pyiso/
+  install: pip install pyiso
+  official: false
+  vendor: WattTime (third party)
+  source_code: https://github.com/WattTime/pyiso
+  covers: NYISO among several grid data sources; ships a NYISO client module.
+  evidence: >-
+    https://raw.githubusercontent.com/WattTime/pyiso/master/pyiso/nyiso.py
+    returned 200 on 2026-07-27. Note this project is long-standing but no longer
+    actively maintained.
+- language: python
+  registry: pypi
+  name: isodata
+  url: https://pypi.org/project/isodata/
+  install: pip install isodata
+  official: false
+  vendor: third party (predecessor of gridstatus)
+  source_code: https://github.com/kmax12/isodata
+  covers: The earlier name of the gridstatus project; superseded by gridstatus.
+registries_probed:
+  npm: no NYISO client library found (nyiso, node-nyiso, @nyiso/sdk all 404)
+  pypi: three third-party libraries found; no package published by NYISO
+  rubygems: nyiso 404
+  crates_io: no NYISO crate found
+  maven_central: no NYISO artifact found
+  nuget: no NYISO package found
+  pkg_go_dev: no NYISO module found
+  packagist: no NYISO package found
+notes: >-
+  Because there is no first-party client library, no SDKs pointer is wired into
+  apis.yml. A Packages pointer is wired so the third-party ecosystem is
+  discoverable, clearly marked unofficial.

@@ -1,0 +1,52 @@
+generated: '2026-07-27'
+method: searched
+source: anonymous HTTPS probes of every NYISO host in apis.yml
+summary: >-
+  NYISO publishes no /.well-known/ discovery surface of any kind. Every RFC 8615
+  well-known path probed on every NYISO host - the corporate site, the API host,
+  the market-trial host, the MIS public archive and the OASIS postings bucket -
+  returned 404. There is no security.txt (RFC 9116), no OpenID Connect discovery
+  document, no OAuth 2.0 authorization server metadata (RFC 8414), no API
+  catalog (RFC 9727) and no ai-plugin.json. This is a recorded absence, not a
+  gap in the probe - it is consistent with the authentication model NYISO
+  actually uses, which is HTTP Basic against an MIS account plus a NAESB client
+  certificate, with no token endpoint or identity provider to advertise.
+hosts:
+- host: https://www.nyiso.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+- host: https://api.nyiso.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+- host: https://oasis-postings.nyiso.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+- host: http://mis.nyiso.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+notes: >-
+  Because nothing was found, no raw well-known documents were saved and no
+  WellKnown or SecurityTxt pointer is wired into apis.yml. This file exists as
+  dated probe evidence so a later round does not have to re-derive the negative.

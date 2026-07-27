@@ -1,0 +1,103 @@
+generated: '2026-07-27'
+method: searched
+source: >-
+  NYISO Metering API User Guide section 2.6 and NYISO Finance APIs User's Guide
+  v1.2 DRAFT section 2.6 and response examples; anonymous probes of
+  api.nyiso.com and apitest.nyiso.com on 2026-07-27
+docs: https://www.nyiso.com/manuals-tech-bulletins-user-guides
+format: http-status-plus-json-validation-envelope
+rfc9457: false
+summary: >-
+  NYISO's REST APIs do not use RFC 9457 problem+json. They signal outcome with
+  plain HTTP status codes and, for submissions, return a 200 or 422 whose JSON
+  body carries a per-record validation report. Individual validation failures are
+  strings prefixed with a NYISO error code (the guide's worked example is
+  "M00001: This is an example message"); NYISO does not publish the code registry
+  itself in either guide, so the code list below is deliberately empty rather
+  than guessed.
+
+problems:
+- status: 200
+  title: OK
+  detail: >-
+    The request completed with no failures or errors. For POST submissions this
+    means all submitted data passed validation and was stored, unless the caller
+    asked for validation only.
+  source: Finance APIs User's Guide v1.2 section 2.6
+- status: 400
+  title: Bad Request
+  detail: >-
+    The request was not valid and could not be processed - JSON that cannot be
+    parsed on POST, or validation failure of input parameters on GET.
+  source: Finance APIs User's Guide v1.2 section 2.6
+- status: 401
+  title: Unauthorized
+  detail: >-
+    The provided user credentials failed authentication. Observed live on every
+    api.nyiso.com and apitest.nyiso.com endpoint probed anonymously on
+    2026-07-27, emitted by nginx with a plain HTML body rather than JSON.
+  source: Finance APIs User's Guide v1.2 section 2.6; live probe
+- status: 403
+  title: Forbidden
+  detail: >-
+    The user was authenticated but is not authorized for the service requested -
+    the MIS account lacks the metering or settlement privilege granted through
+    the participant's Marketplace administrator.
+  source: Finance APIs User's Guide v1.2 section 2.6
+- status: 422
+  title: Unprocessable Content
+  detail: >-
+    The request was well-formed JSON but its content failed validation with one
+    or more errors. Applies to POST requests. Documented in the Finance APIs
+    guide; not present in the older standalone Metering API guide.
+  source: Finance APIs User's Guide v1.2 section 2.6
+- status: 500
+  title: Internal Server Error
+  detail: >-
+    An unanticipated server-side error prevented completion of the service
+    request.
+  source: Finance APIs User's Guide v1.2 section 2.6
+
+validation_envelope:
+  description: >-
+    Submission responses report validation outcome in the body regardless of
+    status. A submission is atomic - if any record fails validation the entire
+    request is rejected, and every validation error found is returned.
+  fields:
+    submissionParameters: Echo of the caller's submission parameters, including userName and userRequestId.
+    nyisoRequestId: Server-generated UUID for the request.
+    requestTimestamp: ISO-8601 Eastern-offset timestamp of the request.
+    requestSummary: >-
+      Per-collection counts (generators, ties, subzones, buses) of submitted,
+      passedValidation, failedValidation, accepted and rejected records.
+    failedValidation: >-
+      Per-collection arrays of the offending records, each echoing its key fields
+      and carrying an errors[] array of code-prefixed message strings.
+  example_error_string: 'M00001: This is an example message'
+  example_shape: |
+    {
+      "failedValidation": {
+        "ties": [
+          {
+            "tiePtid": 222222,
+            "dateHour": "2021-12-14T02:00:00.000-05:00",
+            "meterTieFlowMwh": 33.3333,
+            "errors": ["M00001: This is an example message"]
+          }
+        ]
+      }
+    }
+
+error_code_registry:
+  published: false
+  note: >-
+    NYISO uses letter-prefixed numeric validation codes (M-series in the metering
+    examples) but publishes no code list in either user guide and no error
+    reference page on nyiso.com. No codes are enumerated here because none are
+    published - only the single worked example above appears in the source.
+
+file_surfaces:
+  note: >-
+    The MIS public archive and OASIS postings bucket have no error envelope. A
+    missing file returns HTTP 404; the DSS report builder at
+    mis.nyiso.com/public/dss/ returns 403 to anonymous callers.

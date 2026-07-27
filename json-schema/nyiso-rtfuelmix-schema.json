@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/nyiso/refs/heads/main/json-schema/nyiso-rtfuelmix-schema.json",
+  "title": "NYISO Real-Time Fuel Mix record",
+  "description": "Real-time generation output in MW grouped by fuel category. One object per row of NYISO MIS public archive CSV report P-63 (http://mis.nyiso.com/public/csv/rtfuelmix/<YYYYMMDD>rtfuelmix.csv). DERIVED by API Evangelist from the header row and observed values of a live file fetched on 2026-07-27; NYISO publishes no schema document for this report. Timestamps are rendered by NYISO as MM/DD/YYYY HH:MM[:SS] in Eastern time, not ISO-8601.",
+  "x-nyiso-report": "P-63",
+  "x-source-url": "http://mis.nyiso.com/public/csv/rtfuelmix/20260726rtfuelmix.csv",
+  "x-generated": "2026-07-27",
+  "x-method": "derived",
+  "type": "object",
+  "properties": {
+    "time_stamp": {
+      "type": "string",
+      "title": "Time Stamp",
+      "description": "CSV column \"Time Stamp\"; observed example value: 07/26/2026 00:05:00"
+    },
+    "time_zone": {
+      "type": "string",
+      "title": "Time Zone",
+      "description": "CSV column \"Time Zone\"; observed example value: EDT"
+    },
+    "fuel_category": {
+      "type": "string",
+      "title": "Fuel Category",
+      "description": "CSV column \"Fuel Category\"; observed example value: Dual Fuel"
+    },
+    "gen_mw": {
+      "type": "number",
+      "title": "Gen MW",
+      "description": "CSV column \"Gen MW\"; observed example value: 3973.0"
+    }
+  },
+  "required": [
+    "time_stamp",
+    "time_zone",
+    "fuel_category",
+    "gen_mw"
+  ],
+  "additionalProperties": false
+}

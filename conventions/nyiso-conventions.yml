@@ -1,0 +1,172 @@
+generated: '2026-07-27'
+method: searched
+source: >-
+  NYISO Metering API User Guide and NYISO Finance APIs User's Guide v1.2 DRAFT
+  for the REST surfaces; live anonymous probes of mis.nyiso.com/public and
+  oasis-postings.nyiso.com on 2026-07-27 for the file surfaces
+docs: https://www.nyiso.com/manuals-tech-bulletins-user-guides
+summary: >-
+  NYISO has two entirely separate sets of conventions because it runs two
+  entirely separate kinds of interface. The public data surfaces are file
+  archives addressed by a stable, date-templated URL convention with no query
+  language, no pagination and no authentication. The market-participant REST
+  APIs are JSON-over-HTTPS with URI-path versioning, ISO-8601 Eastern-offset
+  timestamps, fixed decimal precision, an all-or-nothing validation model on
+  writes and a client-supplied plus server-supplied request-id pair for tracing.
+  Neither surface documents an idempotency key, a rate limit, a pagination
+  cursor or a field-expansion mechanism.
+
+surfaces:
+
+- surface: MIS public data archive
+  base_url: http://mis.nyiso.com/public
+  style: date-templated file archive
+  auth: none
+  formats: [csv, pdf, zip, htm, txt, xls]
+  url_convention:
+    daily: /public/csv/<report-dir>/<YYYYMMDD><report-name>.csv
+    monthly_bundle: /public/csv/<report-dir>/<YYYYMM01><report-name>_csv.zip
+    current_snapshot: /public/csv/<report-dir>/current<ReportName>.csv
+    static_reference: /public/csv/<report-dir>/<report-name>.csv
+    parallel_renderings: >-
+      Many reports publish the same content under /public/pdf/<report-dir>/ and
+      some under /public/htm/ or /public/txt/ using the same date prefix.
+    index_pages: /public/<report-code>list.htm (for example P-2Alist.htm), catalogued from /public/menu.htm
+  examples_verified_2026_07_27:
+  - http://mis.nyiso.com/public/csv/damlbmp/20260726damlbmp_zone.csv
+  - http://mis.nyiso.com/public/csv/rtfuelmix/20260726rtfuelmix.csv
+  - http://mis.nyiso.com/public/csv/pal/20260726pal.csv
+  - http://mis.nyiso.com/public/csv/isolf/20260726isolf.csv
+  - http://mis.nyiso.com/public/csv/damlbmp/20260701damlbmp_zone_csv.zip
+  time_semantics: >-
+    Timestamps are rendered MM/DD/YYYY HH:MM[:SS] in Eastern clock time, not
+    ISO-8601. Reports that carry a Time Zone column emit EST or EDT explicitly;
+    reports that do not (day-ahead LBMP, ISO load forecast) leave the daylight
+    saving transition ambiguous and must be reconciled against the calendar.
+  identifiers: >-
+    Locations are identified by NYISO PTID (integer point identifier) alongside a
+    short zone or generator Name. PTIDs are resolvable against the Generator
+    Names (P-19), Load Names (P-20) and Active Transmission Nodes (P-66) reference
+    files.
+  pagination: none - one file per report per day; range retrieval is done by
+    iterating dates or downloading the monthly ZIP bundle
+  rate_limits: none documented and none observed; be a good citizen and prefer
+    the monthly ZIP bundle over iterating daily files for backfills
+  error_handling: >-
+    A file that does not exist returns 404 (verified - a daily-named ZIP returned
+    404 where only the monthly-named ZIP exists). There is no error envelope.
+  schemas: >-
+    NYISO publishes no schema document. API Evangelist derived JSON Schemas for
+    ten of the highest-traffic reports from live header rows - see json-schema/.
+
+- surface: OASIS postings
+  base_url: https://oasis-postings.nyiso.com
+  style: anonymously listable object store
+  auth: none
+  url_convention:
+    dated: /<POSTING_TYPE>/<FORMAT>/<YYYY>/<MM>/<DD>/<name>-<YYYYMMDD>.csv
+    static: /<POSTING_TYPE>/<FORMAT>/<name>.csv
+    listing: GET / returns an S3 ListBucketResult in application/xml
+  formats: [csv, html, pdf]
+  notes: >-
+    History reaches back to 1999. The human front end at oasis.nyiso.com is a
+    single-page application; NAESB WEQ-001 template-interface paths were probed
+    and returned the SPA HTML shell, so no template interface is claimed.
+
+- surface: Finance APIs and Metering API
+  base_url: https://api.nyiso.com
+  style: JSON over HTTPS, resource-per-path
+  media_type: application/json
+  request_headers_documented:
+    Accept: application/json
+    Accept-Encoding: gzip, deflate
+    Authorization: Basic encodedCredential
+    Cache-Control: no-cache
+    Content-Type: application/json
+  versioning:
+    scheme: uri-path
+    current: v1
+    example: https://api.nyiso.com/finance/metering/v1/powerMetering
+    note: >-
+      A second, unrelated "version" concept exists in the payload - the invoice
+      version number of settlement data, a number with one decimal place where 0
+      means "latest".
+  authentication: see authentication/nyiso-authentication.yml
+  date_time:
+    standard: ISO-8601
+    month: yyyy-MM
+    date: yyyy-MM-dd
+    datetime: yyyy-MM-ddTHH:mm:ssX
+    timezone: >-
+      Requests may use any valid ISO-8601 offset; responses are always rendered
+      in Eastern time with an explicit offset (-05:00 EST, -04:00 EDT). End of a
+      period must be expressed as :59:59, e.g. 2021-12-14T23:59:59-05:00.
+  numeric_precision:
+    mwh: up to four decimal places
+    dollars: two decimal places
+  query_conventions:
+    range_selection: >-
+      Either billingMonth (yyyy-MM) or a startTime/endTime (or startDate/endDate)
+      pair - mutually exclusive on most operations. endTime/endDate are
+      inclusive. Invoicing caps a date range at 31 days.
+    repeatable_filters: >-
+      PTID filters (genPtid, tiePtid, subzonePtid, busPtid) may be repeated as
+      URL parameters; a meterDataType parameter narrows to ALL, GENERATOR, TIE or
+      SUBZONE, defaulting to ALL.
+    version_parameter: >-
+      An optional version parameter selects an invoice version of settlement
+      data; 0 (the default) returns the latest.
+  pagination:
+    supported: false
+    note: >-
+      No cursor, offset, page or limit parameter is documented. Response size is
+      bounded by the time range and PTID filters the caller supplies, and by the
+      three-year-and-ten-month availability window.
+  field_expansion:
+    supported: false
+  sparse_fields:
+    supported: false
+  metadata:
+    supported: false
+  request_tracing:
+    client_supplied: >-
+      userRequestId - optional, max 30 characters, letters/numbers/hyphens/
+      underscores. Supplied on submission inside submissionParameters or as a
+      query parameter on retrieval, and echoed back in the response.
+    server_supplied: >-
+      nyisoRequestId - a UUID returned on every submission response, alongside
+      requestTimestamp.
+    header_based: none - tracing is carried in the JSON body, not in headers
+  idempotency:
+    supported: false
+    note: >-
+      No Idempotency-Key header or equivalent is documented. Writes are instead
+      all-or-nothing at the request level - if any record in a submission fails
+      validation the entire request is rejected - and submissions are stated to
+      cover "both new entries and updates" for a given point and service hour,
+      so a repeated submission of identical data overwrites rather than
+      duplicating. That is upsert behaviour, not a published idempotency
+      contract, and it is recorded here as absent rather than inferred as
+      present.
+  dry_run:
+    supported: true
+    note: >-
+      submissionParameters.doNotCommit (Metering API guide) / doCommit (Finance
+      APIs guide v1.2) validates a submission without storing any record -
+      described by NYISO as designed primarily for testing. See
+      sandbox/nyiso-sandbox.yml.
+  error_envelope: see errors/nyiso-problem-types.yml
+  rate_limits:
+    documented: false
+    note: No rate limit, quota or throttling behaviour is documented in either guide.
+  data_availability_window: >-
+    Three years and ten months ending with the current month, for metering,
+    settlements and invoicing retrieval.
+
+cross_links:
+  authentication: authentication/nyiso-authentication.yml
+  errors: errors/nyiso-problem-types.yml
+  lifecycle: lifecycle/nyiso-lifecycle.yml
+  sandbox: sandbox/nyiso-sandbox.yml
+  data_model: data-model/nyiso-data-model.yml
+  json_schema: json-schema/

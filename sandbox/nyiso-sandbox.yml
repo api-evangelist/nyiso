@@ -1,0 +1,81 @@
+generated: '2026-07-27'
+method: searched
+source: >-
+  NYISO Finance APIs User's Guide v1.2 DRAFT section 2.2, the SDX Upload/Download
+  Application Retirement notice, and anonymous probes of apitest.nyiso.com on
+  2026-07-27
+summary: >-
+  NYISO runs a real, separately-hosted test environment - the API Market Trial
+  environment at apitest.nyiso.com - and every request example in the Finance
+  APIs guide is written against it precisely so a participant can copy and run it
+  safely. It is not a self-serve developer sandbox: it requires the same MIS
+  account plus NAESB certificate as production and answered 401 to anonymous
+  probes. The API also ships an in-band dry-run switch that validates a
+  submission without storing anything, which is the closest thing NYISO has to a
+  test mode on the production host.
+
+environments:
+- name: production
+  base_url: https://api.nyiso.com/
+  roots:
+  - https://api.nyiso.com/finance/
+  - https://api.nyiso.com/finance/metering/
+  - https://api.nyiso.com/finance/settlements/
+  - https://api.nyiso.com/finance/invoicing/
+  - https://api.nyiso.com/metering/
+  anonymous_status: 401
+- name: market-trial
+  base_url: https://apitest.nyiso.com/
+  roots:
+  - https://apitest.nyiso.com/finance/
+  purpose: >-
+    "A market trial is currently underway for all market participants that
+    utilize SDX to build solutions according to the Finance APIs User's Guide and
+    test them in a sandbox environment." Every worked example in the guide uses
+    the apitest host rather than production.
+  anonymous_status: 401
+  self_serve: false
+  note: >-
+    Access is granted through the same MIS account and NAESB certificate path as
+    production, arranged with NYISO Stakeholder Services. There is no anonymous
+    try-it, no test key prefix and no hosted console.
+
+test_mode:
+  mechanism: submission parameter
+  parameters:
+  - name: doNotCommit
+    surface: Metering API User Guide
+    type: boolean
+    default: false
+    behavior: >-
+      "If true, only validates data, but does not store any records; designed
+      primarily for use in testing."
+  - name: doCommit
+    surface: Finance APIs User's Guide v1.2
+    type: boolean
+    behavior: >-
+      The v1.2 guide's response examples echo doCommit; when false no records are
+      accepted and all submitted records are reported as rejected after
+      validation runs.
+  note: >-
+    The two guides name the switch differently and were published at different
+    times; check the guide matching the surface you are calling before relying on
+    either name.
+
+test_values:
+  published: false
+  note: >-
+    NYISO publishes no magic test identifiers, no test PTIDs and no fixture
+    generator. The example payloads in the guides use placeholder PTIDs such as
+    222222 inside illustrative JSON; those are documentation examples, not
+    reserved test identifiers, and are not recorded here as usable test data.
+
+open_data_alternative:
+  note: >-
+    For anyone who is not a market participant, the closest thing to a sandbox is
+    the MIS public archive itself - completely anonymous, live, and free to hit
+    against real production data. See conventions/nyiso-conventions.yml for the
+    URL convention and json-schema/ for derived record schemas.
+  base_url: http://mis.nyiso.com/public
+
+onboarding_contact: Stakeholder_Services@nyiso.com / +1 518-356-6060
