@@ -1,0 +1,444 @@
+aid: nyiso
+name: New York Independent System Operator (NYISO)
+review:
+  question: What real, public API surface does NYISO expose, and what energy-data
+    obligation actually applies to it?
+  date: '2026-07-27'
+  reviewer: API Evangelist
+  tier: system-operator
+  homeMarket: United States
+  primaryDomain: nyiso.com
+  verdict: >
+    NYISO is the sector's split personality in one organization. Its market and
+    system data is wide open and anonymous - a sixty-report-family bulk CSV/ZIP
+    archive at mis.nyiso.com/public and a publicly listable OASIS postings object
+    store at oasis-postings.nyiso.com, both answering 200 with no credentials of
+    any kind. Its actual REST APIs are the exact opposite - six documented
+    market-participant surfaces under api.nyiso.com, every one of which answered
+    401 Authorization Required to an anonymous probe, gated behind an MIS user
+    account plus a NAESB-accredited digital certificate. There is no consumer
+    data surface at all and no consumer data mandate applies. NYISO publishes no
+    machine-readable API contract anywhere, so nothing was harvested into
+    openapi/ and nothing was authored.
+mandate:
+  regime: other
+  regimeName: >
+    FERC open-access transparency obligations on a jurisdictional transmission
+    provider and ISO - principally Order No. 889 and Order No. 890, which require
+    an Open Access Same-Time Information System (OASIS), plus the market-data
+    posting requirements embedded in NYISO's FERC-approved Open Access
+    Transmission Tariff and Market Administration and Control Area Services
+    Tariff. This is a WHOLESALE transparency mandate. It is emphatically NOT a
+    consumer data right.
+  status: live-implemented
+  statusEvidence: >
+    The obligation and the implementation were checked as separate facts. The
+    obligation is a FERC requirement on NYISO as a jurisdictional ISO. The
+    implementation was verified by direct anonymous HTTP probe on 2026-07-27, not
+    by reading a compliance page. NYISO operates a live OASIS node at
+    http://oasis.nyiso.com/ (200, single-page application) backed by
+    https://oasis-postings.nyiso.com, which answered an anonymous S3 ListBucket
+    request with 200 application/xml and served
+    ACTIVE_TRANSMISSION_NODE/CSV/activetransmissionnodes.csv at 200 text/csv, with
+    ATC_TTC posting keys dated back to 1999-11-18. Separately, the MIS public
+    archive at http://mis.nyiso.com/public/ answered 200 and served live daily
+    CSV for day-ahead LBMP, real-time LBMP, actual load, fuel mix and load
+    forecast, plus monthly ZIP bundles. This is an implementation, not a claim.
+  mandateVersusImplementationCaveat: >
+    One boundary is drawn deliberately. NYISO's OASIS node is verified LIVE, but
+    conformance to the NAESB WEQ-001 OASIS Business Practice Standards template
+    interface was NOT verified. Template-style request paths under
+    oasis.nyiso.com (for example /oasis/data/nyiso/system_data, /oasis/data,
+    /OASIS/) all returned 200 text/html, which is the SPA's index shell answering
+    every unmatched route, not a WEQ-001 template response. The correct record is
+    "OASIS node live and openly readable", not "WEQ-001 conformant".
+  notMandated: >
+    NO consumer energy data-portability mandate applies to NYISO. The United
+    States has Green Button as a real NAESB/NIST-derived standard with nothing
+    federally compelling anyone to adopt it, and in any case Green Button and
+    ESPI bind DISTRIBUTION UTILITIES holding retail customer relationships - in
+    New York that means Con Edison, National Grid, NYSEG, RG&E, Central Hudson,
+    Orange & Rockland and PSEG Long Island under New York PSC / REV proceedings -
+    not the wholesale system operator. `green-button-voluntary` was considered
+    and rejected as the regime for THIS organization because NYISO has no retail
+    customers, holds no interval consumption data for individual premises, and
+    makes no Green Button claim anywhere on its site. `cdr-energy` and
+    `green-button-ontario` are geographically inapplicable.
+    `smart-meter-infrastructure` was considered and rejected because the US has
+    no DCC-style national metering data infrastructure and NYISO is not one.
+  registerEntry: >
+    Not applicable - no CDR or equivalent accredited-recipient register exists for
+    US energy, and no register entry was sought or found.
+dataStandard:
+  standard: no consumer-data standard reference found
+  detail: >
+    No Green Button, no ESPI, no CDR Consumer Data Standards, no IEC CIM
+    61968/61970, no IEEE 2030.5, no OpenADR, no OCPP/OCPI reference was found on
+    any NYISO surface. The one named industry standard genuinely in play is NAESB
+    - on two axes, and only one of them is a data schema. First, NAESB WEQ-001
+    OASIS Business Practice Standards sit behind the FERC OASIS obligation, but as
+    recorded above conformance to the WEQ-001 template interface was not verified.
+    Second, and this one IS verified from the published guides, NYISO's REST APIs
+    authenticate with a NAESB-accredited digital certificate under the NAESB PKI /
+    Authorized Certification Authority regime - NAESB here is an identity standard,
+    not a payload standard. The API payloads themselves are a NYISO-proprietary
+    JSON shape defined only in the user guides, using ISO-8601 for dates and times
+    with Eastern offsets. The open bulk data is NYISO-proprietary CSV with a stable
+    URL convention and no published schema document.
+dataSplit:
+  marketDataOpen: true
+  marketDataDetail: >
+    Wide open, and this is the substantial surface. The MIS public archive index
+    at http://mis.nyiso.com/public/menu.htm enumerates roughly sixty report
+    families - zonal and generator day-ahead LBMP (P-2A/P-2B), real-time LBMP
+    (P-24A/P-24B, P-4A/P-4B), ancillary services for both real-time and day-ahead
+    (P-6B, P-5), reference bus LBMP, price correction logs, CTS prices, real-time
+    and day-ahead outages (P-54A/B/C), outage schedules, generation maintenance,
+    limiting constraints (P-33, P-511A), interface limits and flows (P-32), Lake
+    Erie circulation, PAR schedules and flows, ATC/TTC and long-term ATC/TTC
+    (P-8, P-8A), TTC forecast, grandfathered transmission rights, ISO load
+    forecast (P-7), zonal bid load, weather forecast, real-time actual and
+    integrated actual load (P-58B/P-58C), day-ahead daily energy report, NYISO
+    capacity report, balancing market advisory, real-time events, real-time fuel
+    mix (P-63), operational announcements, operator-initiated commitments, zonal
+    and resource uplift (P-45, P-46), day-ahead and real-time IMER, ICAP zonal
+    forecast/estimated actuals/tracking (P-70A/B/C), NYISO bid data (P-27),
+    economic dispatch analysis, generator and load names, active transmission
+    nodes, transmission owner information, subzones by transmission owner,
+    subzone definitions, and the DOE EIA-930 same-day hourly and daily demand
+    postings. Every one is fetchable anonymously. Plus the OASIS postings bucket
+    with anonymous listing and 1999-to-present history.
+  consumerDataApi: false
+  consumerDataDetail: >
+    Zero. NYISO exposes no individual customer usage, billing, consent or
+    account-level data through any API, and no consent flow, accredited-recipient
+    concept or customer-authorization surface exists. This is structurally correct
+    rather than a gap - the system operator has no retail customers. NYISO's
+    "metering" APIs are revenue-grade WHOLESALE settlement metering for generators,
+    ties and subzones, which is easy to mistake for consumer metering and is not
+    remotely the same thing. In the US, individual consumption data sits with the
+    distribution utilities and, in practice, with the private resale layer
+    (Arcadia, UtilityAPI, Genability) rather than with any ISO.
+  theFinding: >
+    NYISO is a clean two-speed provider - completely open on market and system
+    data, completely absent on consumer data, and completely closed on its only
+    true REST APIs. The bulk archive is the most usable thing NYISO ships and it
+    has no API contract; the things that ARE APIs cannot be reached without
+    becoming a market participant. Do not collapse this into a single open/closed
+    verdict.
+accessGate:
+  gate: self-serve
+  gateForRestApis: accredited-only
+  gated: true
+  whatADeveloperMustDo: >
+    Two completely different answers depending on which surface you want. For the
+    open data - nothing. No sign-up, no key, no application, no licence
+    click-through, no referrer or cookie requirement. Issue an HTTP or HTTPS GET
+    against http://mis.nyiso.com/public/csv/<report>/<YYYYMMDD><report>.csv or a
+    monthly bundle at .../<YYYYMM01><report>_csv.zip, or against
+    https://oasis-postings.nyiso.com/<KEY>, and you get CSV. For the REST APIs -
+    a great deal. You must be a registered NYISO Market Participant, hold a valid
+    MIS user account with the relevant metering/settlement privileges granted
+    through the NYISO Marketplace administrator system (per the Settlement Data
+    Applications User's Guide), and obtain a digital certificate from a
+    NAESB-Authorized Certification Authority bound to that MIS account (per the
+    Market Participant User's Guide). There is no public sandbox self-signup - the
+    market-trial environment at apitest.nyiso.com is also credentialed and
+    returned 401. Onboarding runs through NYISO Stakeholder Services
+    (Stakeholder_Services@nyiso.com, 518.356.6060), not through a developer portal.
+  developerPortal: >
+    There is no developer portal in the conventional sense. developer.nyiso.com,
+    developers.nyiso.com, docs.nyiso.com and data.nyiso.com all fail DNS
+    resolution. /developers, /api and /docs on www.nyiso.com all return 404. The
+    real self-serve entry points are the Energy Market & Operational Data hub at
+    https://www.nyiso.com/energy-market-operational-data (200, anonymous) and the
+    MIS public archive itself at http://mis.nyiso.com/public/ (200, anonymous).
+    API documentation is distributed as PDF user guides filed under
+    https://www.nyiso.com/manuals-tech-bulletins-user-guides, not as a hosted
+    reference site.
+authModel:
+  openSurfaceScheme: none
+  restApiScheme: HTTP Basic over TLS 1.2 plus NAESB client certificate (two-factor)
+  detail: >
+    The open surfaces are unauthenticated anonymous HTTP GET - no key, no OAuth2,
+    no OIDC, no mTLS. The REST APIs are explicitly two-factor per both published
+    guides - "A valid MIS user account and associated password must be provided
+    using Basic authentication" AND "The NAESB certificate associated with the MIS
+    user account must be provided with each request". All endpoints are HTTPS 1.1
+    over TLS 1.2. The 401 responses are emitted by nginx with a plain HTML body,
+    consistent with Basic-auth enforcement at the edge. No OAuth2, no OpenID
+    Connect, and no token endpoint of any kind is documented or discoverable.
+  wellKnownProbe: >
+    https://www.nyiso.com/.well-known/openid-configuration -> HTTP 404.
+    https://api.nyiso.com/.well-known/openid-configuration -> HTTP 404 (served by
+    awselb/2.0 with body "Page Not Found"). No OIDC discovery document exists
+    anywhere on NYISO infrastructure.
+probes:
+  date: '2026-07-27'
+  method: anonymous curl, no cookies, no credentials, redirects followed
+  results:
+  - url: https://www.nyiso.com/
+    status: 200
+    note: Corporate site (Liferay).
+  - url: https://www.nyiso.com/energy-market-operational-data
+    status: 200
+    note: Open data hub; links Pricing, Power Grid, Load, Custom Reports, Ancillary
+      Services, Emissions, Real-Time Dashboard, Postings by Date.
+  - url: https://www.nyiso.com/pricing-data
+    status: 200
+  - url: https://www.nyiso.com/load-data
+    status: 200
+  - url: https://www.nyiso.com/power-grid-data
+    status: 200
+  - url: https://www.nyiso.com/emissions-data
+    status: 200
+  - url: https://www.nyiso.com/real-time-dashboard
+    status: 200
+    note: Public dashboard, no login. References an external CartoVista
+      interconnection heat map; no JSON feed or API is documented on the page.
+  - url: https://www.nyiso.com/custom-reports
+    status: 200
+    note: Front door to NYISO's Decision Support System (DSS) report builder. Sits
+      under the login menu; http://mis.nyiso.com/public/dss/ returned 403, so DSS
+      itself is NOT anonymously readable.
+  - url: https://www.nyiso.com/manuals-tech-bulletins-user-guides
+    status: 200
+    note: Where the API PDF user guides are filed.
+  - url: https://www.nyiso.com/market-access-login
+    status: 200
+    note: Market participant login landing page, not a developer portal.
+  - url: https://www.nyiso.com/billings-and-settlements
+    status: 200
+  - url: https://www.nyiso.com/legal-notice
+    status: 200
+  - url: http://mis.nyiso.com/public/
+    status: 200
+    note: MIS public archive. HTML 4.0 frameset, no login of any kind.
+  - url: http://mis.nyiso.com/public/menu.htm
+    status: 200
+    note: Report index; roughly 60 report families enumerated.
+  - url: http://mis.nyiso.com/public/P-2Alist.htm
+    status: 200
+    note: Zonal day-ahead LBMP file listing, 150KB.
+  - url: http://mis.nyiso.com/public/P-58Blist.htm
+    status: 200
+    note: Real-time actual load file listing.
+  - url: http://mis.nyiso.com/public/csv/damlbmp/20260725damlbmp_zone.csv
+    status: 200
+    note: text/csv, 16786 bytes. Day-ahead zonal LBMP, anonymous.
+  - url: http://mis.nyiso.com/public/csv/realtime/20260725realtime_zone.csv
+    status: 200
+    note: text/csv, 230485 bytes.
+  - url: http://mis.nyiso.com/public/csv/pal/20260725pal.csv
+    status: 200
+    note: text/csv, 168233 bytes. Actual load.
+  - url: http://mis.nyiso.com/public/csv/rtfuelmix/20260725rtfuelmix.csv
+    status: 200
+    note: 'text/csv, 85289 bytes. Header verified: "Time Stamp,Time Zone,Fuel
+      Category,Gen MW".'
+  - url: http://mis.nyiso.com/public/csv/isolf/20260725isolf.csv
+    status: 200
+    note: text/csv, 10976 bytes. ISO load forecast.
+  - url: http://mis.nyiso.com/public/csv/damlbmp/20260701damlbmp_zone_csv.zip
+    status: 200
+    note: 101086 bytes. Monthly ZIP bundles are keyed to the 1st of the month.
+  - url: http://mis.nyiso.com/public/csv/rtfuelmix/20260701rtfuelmix_csv.zip
+    status: 200
+    note: 271055 bytes.
+  - url: http://mis.nyiso.com/public/csv/damlbmp/20260725damlbmp_zone_csv.zip
+    status: 404
+    note: Confirms the monthly-bundle naming convention rather than a daily one.
+  - url: http://mis.nyiso.com/public/dss/
+    status: 403
+    note: Decision Support System is not anonymously readable.
+  - url: http://oasis.nyiso.com/
+    status: 200
+    note: OASIS single-page application (Vite/React bundle assets/index-D8Y9Zh9F.js).
+  - url: https://oasis.nyiso.com/
+    status: 200
+  - url: https://oasis-postings.nyiso.com/
+    status: 200
+    note: 'application/xml S3 ListBucketResult for bucket
+      com.nyiso.k8s.k8s-prod.oasis-postings. Anonymous listing succeeds. Keys
+      include ACTIVE_TRANSMISSION_NODE/{CSV,HTML,PDF}/ and
+      ATC_TTC/CSV/YYYY/MM/DD/atc_ttc-YYYYMMDD.csv from 1999-11-18 onward.'
+  - url: https://oasis-postings.nyiso.com/ACTIVE_TRANSMISSION_NODE/CSV/activetransmissionnodes.csv
+    status: 200
+    note: 'text/csv, 7501 bytes. Header verified: "Node Name","PTID","Subzone","Zone".'
+  - url: http://oasis.nyiso.com/oasis/data/nyiso/system_data
+    status: 200
+    note: NOT a WEQ-001 template response - returns the SPA HTML shell. Same for
+      /oasis/data, /OASIS/, /oasis/, /data/. No template interface confirmed.
+  - url: https://api.nyiso.com/
+    status: 404
+    note: 'awselb/2.0, body "Page Not Found". Host resolves and is live.'
+  - url: https://api.nyiso.com/metering/
+    status: 401
+    note: nginx 401 Authorization Required.
+  - url: https://api.nyiso.com/metering/v1/powerMetering
+    status: 401
+  - url: https://api.nyiso.com/finance/
+    status: 401
+  - url: https://api.nyiso.com/finance/settlements/
+    status: 401
+  - url: https://api.nyiso.com/finance/invoicing/
+    status: 401
+  - url: https://api.nyiso.com/finance/metering/v1/powerMetering
+    status: 401
+  - url: https://api.nyiso.com/finance/metering/v1/transmissionOwnerLoad
+    status: 401
+  - url: https://api.nyiso.com/finance/metering/v1/generatorPerformance
+    status: 401
+  - url: https://api.nyiso.com/finance/settlements/v1/stationPower
+    status: 401
+  - url: https://api.nyiso.com/finance/invoicing/v1/dailyReconciliation/dollar
+    status: 401
+  - url: https://apitest.nyiso.com/
+    status: 404
+    note: Market-trial host is live.
+  - url: https://apitest.nyiso.com/finance/metering/v1/powerMetering
+    status: 401
+    note: The sandbox is credentialed too - there is no anonymous try-it.
+  - url: https://www.nyiso.com/documents/20142/27889215/NYISO%20Metering%20API%20User%20Guide.pdf/d8ed36d3-1a40-9584-6961-3fdb845ca4fa
+    status: 200
+    note: application/pdf, 542905 bytes. Metering API User Guide. Downloaded and
+      text-extracted.
+  - url: https://www.nyiso.com/documents/20142/45334160/NYISO%20Finance%20APIs%20User's%20Guide%20v1.2%20-%20DRAFT.pdf/4f0de58a-783d-a317-64fe-caed77ba61fa
+    status: 200
+    note: application/pdf, 1349885 bytes. Finance APIs User's Guide v1.2 DRAFT.
+      Downloaded and text-extracted.
+  - url: https://www.nyiso.com/documents/20142/20259596/SDX-Upload-Download-Application-Retirement.pdf/93ebf171-b383-520d-b3af-00cb9f433d3c
+    status: 200
+    note: 'Confirms "SDX will no longer be available after 9/17/2025" and that the
+      Finance APIs replicate SDX functionality.'
+  - url: https://www.nyiso.com/documents/20142/3625950/mpug.pdf
+    status: 200
+    note: Market Participant User's Guide - the MIS authorization and digital
+      certificate requirements referenced by both API guides.
+  - url: https://www.nyiso.com/documents/20142/3625950/SDA_UG.pdf
+    status: 200
+    note: Settlement Data Applications User's Guide - Marketplace administrator,
+      user account and metering privilege management.
+  - url: https://www.nyiso.com/documents/20142/3625950/UG-23-MeteringAPI-v1.0-Final.pdf/6b8e0634-9c8c-28c1-4aa6-e75826d16eb1
+    status: 404
+    note: An older final-versioned guide surfaced in search but is no longer served.
+  - url: https://developer.nyiso.com/
+    status: 0
+    note: DNS does not resolve.
+  - url: https://developers.nyiso.com/
+    status: 0
+    note: DNS does not resolve.
+  - url: https://docs.nyiso.com/
+    status: 0
+    note: DNS does not resolve.
+  - url: https://data.nyiso.com/
+    status: 0
+    note: DNS does not resolve.
+  - url: https://marketplace.nyiso.com/
+    status: 0
+    note: DNS does not resolve.
+  - url: https://www.nyiso.com/developers
+    status: 404
+  - url: https://www.nyiso.com/api
+    status: 404
+  - url: https://www.nyiso.com/docs
+    status: 404
+  - url: https://www.nyiso.com/openapi.json
+    status: 404
+  - url: https://www.nyiso.com/swagger.json
+    status: 404
+  - url: https://www.nyiso.com/.well-known/openid-configuration
+    status: 404
+  - url: https://api.nyiso.com/openapi.json
+    status: 404
+  - url: https://api.nyiso.com/swagger.json
+    status: 404
+  - url: https://api.nyiso.com/api-docs
+    status: 404
+  - url: https://api.nyiso.com/v1
+    status: 404
+  - url: https://api.nyiso.com/docs
+    status: 404
+  - url: https://api.nyiso.com/.well-known/openid-configuration
+    status: 404
+  - url: https://oasis-postings.nyiso.com/openapi.json
+    status: 404
+  - url: https://oasis-postings.nyiso.com/swagger.json
+    status: 404
+  - url: https://github.com/nyiso
+    status: 200
+    note: An empty GitHub user account named "Nyiso" with no repositories and no
+      organization verification. NOT recorded as an official NYISO presence.
+  - url: https://www.linkedin.com/company/nyiso
+    status: 999
+    note: LinkedIn anti-bot response, not a confirmation. Not recorded.
+specHarvest:
+  harvested: false
+  specsCount: 0
+  openapiDirectoryOmitted: true
+  detail: >
+    NYISO publishes no machine-readable API contract of any kind. No OpenAPI, no
+    Swagger, no WSDL, no JSON Schema, no Postman collection was found on
+    www.nyiso.com, api.nyiso.com, apitest.nyiso.com, oasis.nyiso.com,
+    oasis-postings.nyiso.com or mis.nyiso.com. Every /openapi.json,
+    /swagger.json, /api-docs and /.well-known/ probe returned 404. API
+    documentation exists only as PDF user guides (Metering API User Guide, Finance
+    APIs User's Guide v1.2 DRAFT), which do document real request/response shapes
+    and real endpoint paths - but a spec derived from those PDFs would be authored
+    by API Evangelist, not harvested from NYISO, so none was written. The open
+    bulk-data surfaces are file archives with a URL convention rather than REST
+    APIs, and have no contract to harvest either.
+notes:
+  seamContext: >
+    NYISO is one of the seven US ISOs/RTOs. Within the Green Button market seam it
+    belongs to the wholesale market-operator layer that publishes genuine open
+    market data, sitting entirely apart from the consumer-data question that Green
+    Button, ESPI, and the Australian CDR address. Its distinguishing trait against
+    peers is that the open surface is bulk-file-shaped rather than API-shaped -
+    NYISO gives you excellent data with no contract, while reserving all of its
+    actual REST engineering for credentialed market participants.
+  retirementSignal: >
+    NYISO retired the SDX upload/download application on 2025-09-17 and moved
+    market participants onto the Finance APIs. That is a genuine legacy-to-API
+    modernization event, and it happened entirely on the gated side of the split.
+  documentationMaturityCaveat: >
+    The Finance APIs User's Guide is watermarked "DRAFT - FOR DISCUSSION PURPOSES
+    ONLY" on every page, and the Metering API User Guide carries "DRAFT PURPOSES
+    ONLY" plus an explicit note that "This common URL root has not yet been
+    finalized". Yet api.nyiso.com is demonstrably live and enforcing auth, and SDX
+    is retired. The production system has outrun its own published documentation.
+sources:
+- url: https://www.nyiso.com/energy-market-operational-data
+  type: Documentation
+  note: Canonical open market and operational data hub.
+- url: http://mis.nyiso.com/public/
+  type: Portal
+  note: MIS public archive - the actual open data surface, no credentials.
+- url: http://oasis.nyiso.com/
+  type: Portal
+  note: FERC-mandated OASIS node.
+- url: https://oasis-postings.nyiso.com/
+  type: API
+  note: Anonymously listable OASIS postings object store.
+- url: https://www.nyiso.com/documents/20142/45334160/NYISO%20Finance%20APIs%20User's%20Guide%20v1.2%20-%20DRAFT.pdf/4f0de58a-783d-a317-64fe-caed77ba61fa
+  type: Documentation
+  note: Base URLs, two-factor auth requirement, and full operation set for the
+    Finance Metering, Settlements and Invoicing APIs.
+- url: https://www.nyiso.com/documents/20142/27889215/NYISO%20Metering%20API%20User%20Guide.pdf/d8ed36d3-1a40-9584-6961-3fdb845ca4fa
+  type: Documentation
+  note: Standalone Metering API guide - base URL, Basic auth plus NAESB
+    certificate, ISO-8601 formats, 3-year-10-month data window.
+- url: https://www.nyiso.com/documents/20142/20259596/SDX-Upload-Download-Application-Retirement.pdf/93ebf171-b383-520d-b3af-00cb9f433d3c
+  type: Documentation
+  note: SDX retirement 2025-09-17 in favour of the Finance APIs.
+- url: https://www.nyiso.com/documents/20142/3625950/mpug.pdf
+  type: Documentation
+  note: Market Participant User's Guide - MIS authorization and digital certificate
+    requirements.
+- url: https://www.nyiso.com/documents/20142/3625950/SDA_UG.pdf
+  type: Documentation
+  note: Settlement Data Applications User's Guide - Marketplace privilege
+    administration.
+- url: https://www.nyiso.com/manuals-tech-bulletins-user-guides
+  type: Documentation
+  note: Where NYISO files its API user guides.
