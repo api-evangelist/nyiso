@@ -182,6 +182,11 @@ apis:
   baseURL: https://api.nyiso.com/finance/metering
   tags:
   - Metering
+  - Settlement
+  - Electricity
+  - Market Participants
+  tags_raw:
+  - Metering
   - Settlements
   - Electricity
   - Market Participants
@@ -216,6 +221,10 @@ apis:
   humanURL: https://www.nyiso.com/documents/20142/45334160/NYISO%20Finance%20APIs%20User's%20Guide%20v1.2%20-%20DRAFT.pdf/4f0de58a-783d-a317-64fe-caed77ba61fa
   baseURL: https://api.nyiso.com/finance/settlements
   tags:
+  - Settlement
+  - Electricity
+  - Market Participants
+  tags_raw:
   - Settlements
   - Electricity
   - Market Participants
@@ -244,6 +253,11 @@ apis:
   humanURL: https://www.nyiso.com/documents/20142/45334160/NYISO%20Finance%20APIs%20User's%20Guide%20v1.2%20-%20DRAFT.pdf/4f0de58a-783d-a317-64fe-caed77ba61fa
   baseURL: https://api.nyiso.com/finance/invoicing
   tags:
+  - Invoicing
+  - Settlement
+  - Electricity
+  - Market Participants
+  tags_raw:
   - Invoicing
   - Settlements
   - Electricity
